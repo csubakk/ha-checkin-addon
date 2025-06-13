@@ -1,25 +1,15 @@
 import sqlite3
-import json
 from fastapi import FastAPI, Request, HTTPException, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from pathlib import Path
 
 DB_PATH = "/config/guestbook.db"
-
 app = FastAPI()
-
-from fastapi.middleware.cors import CORSMiddleware
-
-origins = [
-    "https://teszt.tapexpert.eu",
-    "https://api.teszt.tapexpert.eu"
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # később szűkíthető
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -40,15 +30,48 @@ async def get_guest_data(token: str):
     return {
         "guest_first_name": row["guest_first_name"],
         "guest_last_name": row["guest_last_name"],
-        "nationality": row["nationality"] or ""
+        "nationality": row["nationality"] or "",
+        "birth_date": row["birth_date"] or "",
+        "birth_place": row["birth_place"] or "",
+        "document_type": row["document_type"] or "",
+        "document_number": row["document_number"] or "",
+        "cnp": row["cnp"] or "",
+        "address": row["address"] or "",
+        "travel_purpose": row["travel_purpose"] or ""
     }
 
 @app.post("/local/checkin_data/{token}.submit")
-async def submit_guest_data(token: str, nationality: str = Form(...)):
+async def submit_guest_data(
+    token: str,
+    nationality: str = Form(...),
+    birth_date: str = Form(""),
+    birth_place: str = Form(""),
+    document_type: str = Form(""),
+    document_number: str = Form(""),
+    cnp: str = Form(""),
+    address: str = Form(""),
+    travel_purpose: str = Form("")
+):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    cursor.execute("UPDATE guest_bookings SET nationality = ?, updated_at = datetime('now') WHERE access_token = ?", (nationality, token))
+    cursor.execute("""
+        UPDATE guest_bookings SET
+            nationality = ?,
+            birth_date = ?,
+            birth_place = ?,
+            document_type = ?,
+            document_number = ?,
+            cnp = ?,
+            address = ?,
+            travel_purpose = ?,
+            updated_at = datetime('now')
+        WHERE access_token = ?
+    """, (
+        nationality, birth_date, birth_place, document_type,
+        document_number, cnp, address, travel_purpose, token
+    ))
+
     conn.commit()
     affected = cursor.rowcount
     conn.close()
