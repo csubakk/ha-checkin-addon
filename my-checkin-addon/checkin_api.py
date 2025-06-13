@@ -1,6 +1,5 @@
 import sqlite3
-from fastapi import FastAPI, Request, HTTPException, Form
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -28,8 +27,8 @@ async def get_guest_data(token: str):
         raise HTTPException(status_code=404, detail="Token not found")
 
     return {
-        "guest_first_name": row["guest_first_name"],
-        "guest_last_name": row["guest_last_name"],
+        "guest_first_name": row["guest_first_name"] or "",
+        "guest_last_name": row["guest_last_name"] or "",
         "nationality": row["nationality"] or "",
         "birth_date": row["birth_date"] or "",
         "birth_place": row["birth_place"] or "",
@@ -37,12 +36,15 @@ async def get_guest_data(token: str):
         "document_number": row["document_number"] or "",
         "cnp": row["cnp"] or "",
         "address": row["address"] or "",
-        "travel_purpose": row["travel_purpose"] or ""
+        "travel_purpose": row["travel_purpose"] or "",
+        "signature": row["signature"] or ""
     }
 
 @app.post("/local/checkin_data/{token}.submit")
 async def submit_guest_data(
     token: str,
+    guest_first_name: str = Form(...),
+    guest_last_name: str = Form(...),
     nationality: str = Form(...),
     birth_date: str = Form(""),
     birth_place: str = Form(""),
@@ -50,13 +52,16 @@ async def submit_guest_data(
     document_number: str = Form(""),
     cnp: str = Form(""),
     address: str = Form(""),
-    travel_purpose: str = Form("")
+    travel_purpose: str = Form(""),
+    signature: str = Form("")
 ):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
         UPDATE guest_bookings SET
+            guest_first_name = ?,
+            guest_last_name = ?,
             nationality = ?,
             birth_date = ?,
             birth_place = ?,
@@ -65,11 +70,13 @@ async def submit_guest_data(
             cnp = ?,
             address = ?,
             travel_purpose = ?,
+            signature = ?,
             updated_at = datetime('now')
         WHERE access_token = ?
     """, (
-        nationality, birth_date, birth_place, document_type,
-        document_number, cnp, address, travel_purpose, token
+        guest_first_name, guest_last_name, nationality, birth_date,
+        birth_place, document_type, document_number, cnp,
+        address, travel_purpose, signature, token
     ))
 
     conn.commit()
