@@ -4,6 +4,8 @@ slug: checkin
 description: Vendég check-in backend FastAPI-val
 startup: application
 boot: auto
+map:
+  - config:rw
 host_network: true
 arch:
   - aarch64
