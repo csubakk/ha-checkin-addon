@@ -1,0 +1,13 @@
+{
+  "name": "Check-in Backend",
+  "version": "1.0",
+  "slug": "checkin",
+  "description": "Vendég check-in backend FastAPI-val",
+  "startup": "application",
+  "boot": "auto",
+  "host_network": true,
+  "map": ["config:rw"],
+  "arch": ["aarch64", "amd64"],
+  "options": {},
+  "schema": {}
+}
