@@ -18,7 +18,7 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 DB_PATH = "/config/guestbook.db"
 SCRIPT_PATH = "/config/scripts/send_access_link.py"
 DOOR_MAP_PATH = "/config/guest_door_map.yaml"
-HA_URL = "http://homeassistant.local:8123/api/services"
+HA_URL = os.getenv("HA_URL", "http://homeassistant.local:8123/api/services")
 
 app = FastAPI()
 app.include_router(meta_router)
