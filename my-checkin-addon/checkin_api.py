@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -86,7 +87,11 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
-    return {"status": "ok", "message": "Adatok frissítve."}
+    # ✅ Automatikus ajtónyitó email küldése
+    cmd = f"SMTP_PASSWORD='{os.environ.get('SMTP_PASSWORD', '')}' python3 /config/scripts/send_access_link.py {token}"
+    os.system(cmd)
+
+    return {"status": "ok", "message": "Adatok frissítve és email elküldve."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8124)
