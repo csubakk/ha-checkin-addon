@@ -42,3 +42,5 @@ async def get_checkin_meta(token: str):
             "action": config.get("action", "")
         }
     }
+
+__all__ = ["router"]
