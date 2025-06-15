@@ -1,10 +1,13 @@
 import sqlite3
+import subprocess
+import os
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 DB_PATH = "/config/guestbook.db"
-QUEUE_FILE = "/config/checkin_event_queue.txt"
+SCRIPT_PATH = "/config/scripts/send_access_link.py"
+
 app = FastAPI()
 
 app.add_middleware(
@@ -87,14 +90,26 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
-    # ✅ Log fájlba írás
-    try:
-        with open(QUEUE_FILE, "a") as f:
-            f.write(f"{token}\n")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Nem sikerült logolni: {str(e)}")
 
-    return {"status": "ok", "message": "Adatok frissítve, feldolgozás folyamatban."}
+    # ✅ Email küldés
+    try:
+        env = os.environ.copy()
+        if "SMTP_PASSWORD" not in env:
+            from dotenv import load_dotenv
+            load_dotenv("/config/.env")
+            env["SMTP_PASSWORD"] = os.getenv("SMTP_PASSWORD", "")
+        result = subprocess.run(
+            ["python3", SCRIPT_PATH, token],
+            capture_output=True,
+            text=True,
+            env=env
+        )
+        if result.returncode != 0:
+            raise HTTPException(status_code=500, detail=f"Sikertelen emailküldés: {result.stderr.strip()}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Hiba emailküldés közben: {str(e)}")
+
+    return {"status": "ok", "message": "Adatok frissítve, email elküldve."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8124)
