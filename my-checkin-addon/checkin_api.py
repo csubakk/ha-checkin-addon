@@ -1,12 +1,16 @@
 import sqlite3
 import subprocess
 import os
+import yaml
+import requests
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 DB_PATH = "/config/guestbook.db"
 SCRIPT_PATH = "/config/scripts/send_access_link.py"
+DOOR_MAP_PATH = "/config/guest_door_map.yaml"
+HA_URL = "http://homeassistant.local:8123/api/services"
 
 app = FastAPI()
 
@@ -90,8 +94,7 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
-
-    # ✅ Email küldés
+    # Email küldés
     try:
         env = os.environ.copy()
         if "SMTP_PASSWORD" not in env:
@@ -110,6 +113,60 @@ async def submit_guest_data(
         raise HTTPException(status_code=500, detail=f"Hiba emailküldés közben: {str(e)}")
 
     return {"status": "ok", "message": "Adatok frissítve, email elküldve."}
+
+@app.post("/local/door/{token}/toggle")
+async def toggle_door(token: str):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT guest_house_id FROM guest_bookings WHERE access_token = ?", (token,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Token not found")
+
+    house_id = str(row["guest_house_id"])
+
+    try:
+        with open(DOOR_MAP_PATH, "r") as f:
+            door_map = yaml.safe_load(f)
+        if house_id not in door_map:
+            raise HTTPException(status_code=404, detail="Nincs ajtókonfiguráció ehhez a házhoz")
+
+        config = door_map[house_id]
+        domain = config.get("domain")
+        action = config.get("action")
+        entity_id = config.get("entity_id")
+
+        if not domain or not action or not entity_id:
+            raise HTTPException(status_code=500, detail="Hiányos ajtókonfiguráció")
+
+        ha_token = os.getenv("HA_TOKEN")
+        if not ha_token:
+            from dotenv import load_dotenv
+            load_dotenv("/config/.env")
+            ha_token = os.getenv("HA_TOKEN")
+
+        headers = {
+            "Authorization": f"Bearer {ha_token}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(
+            f"{HA_URL}/{domain}/{action}",
+            headers=headers,
+            json={"entity_id": entity_id}
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail=f"Home Assistant válasz: {response.status_code} {response.text}")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ajtóvezérlési hiba: {str(e)}")
+
+    return {"status": "ok", "message": "Ajtó művelet elküldve"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8124)
