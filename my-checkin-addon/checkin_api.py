@@ -97,7 +97,6 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
-    # Email küldés
     try:
         env = os.environ.copy()
         if "SMTP_PASSWORD" not in env:
