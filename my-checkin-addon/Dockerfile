@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir fastapi uvicorn python-multipart paho-mqtt
 
 COPY . .
 
-CMD ["uvicorn", "checkin_api:app", "--host", "0.0.0.0", "--port", "8124"]
+CMD ["uvicorn", "checkin_api_mqtt:app", "--host", "0.0.0.0", "--port", "8124"]
