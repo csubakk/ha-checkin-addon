@@ -1,13 +1,17 @@
 import sqlite3
 import os
-import requests
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import paho.mqtt.publish as publish
 
 DB_PATH = "/config/guestbook.db"
-HA_URL = os.environ.get("HA_URL", "http://homeassistant:8123")
-HA_TOKEN = os.environ.get("HA_TOKEN", "")
+MQTT_HOST = "core-mosquitto"  # vagy pl. "localhost", ha nem Docker
+MQTT_PORT = 1883
+MQTT_TOPIC = "checkin/success"
+MQTT_USER = os.environ.get("MQTT_USER", "")  # opcionális
+MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD", "")  # opcionális
+
 app = FastAPI()
 
 app.add_middleware(
@@ -90,24 +94,20 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
-    # ✅ Helyes REST API hívás Home Assistant felé
-    if HA_TOKEN:
-        headers = {
-            "Authorization": f"Bearer {HA_TOKEN}",
-            "Content-Type": "application/json"
-        }
-        payload = { "token": token }
+    # ✅ MQTT publish – sikeres checkin után
+    try:
+        publish.single(
+            topic=MQTT_TOPIC,
+            payload=token,
+            hostname=MQTT_HOST,
+            port=MQTT_PORT,
+            auth={"username": MQTT_USER, "password": MQTT_PASSWORD} if MQTT_USER else None
+        )
+        print(f"✅ MQTT üzenet elküldve a checkin/success topicra: {token}")
+    except Exception as e:
+        print(f"❌ MQTT hiba: {e}")
 
-        try:
-            r = requests.post(f"{HA_URL}/api/services/shell_command/send_access_link", headers=headers, json=payload)
-            if r.status_code != 200:
-                print(f"⚠️ Hiba a shell_command meghívásakor: {r.status_code} {r.text}")
-        except Exception as e:
-            print(f"⚠️ Kivétel történt a REST hívás során: {e}")
-    else:
-        print("⚠️ HA_TOKEN hiányzik, nem tudom meghívni a shell_command-et.")
-
-    return {"status": "ok", "message": "Adatok frissítve és email elküldve."}
+    return {"status": "ok", "message": "Adatok frissítve és MQTT elküldve."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8124)
