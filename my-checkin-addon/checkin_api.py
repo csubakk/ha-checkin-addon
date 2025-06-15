@@ -6,7 +6,6 @@ import requests
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from checkin_meta_api import router as meta_router
 
 DB_PATH = "/config/guestbook.db"
 SCRIPT_PATH = "/config/scripts/send_access_link.py"
@@ -15,6 +14,7 @@ HA_URL = "http://homeassistant.local:8123/api/services"
 
 app = FastAPI()
 
+from checkin_meta_api import router as meta_router
 app.include_router(meta_router)
 
 app.add_middleware(
