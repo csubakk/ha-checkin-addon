@@ -1,20 +1,22 @@
 FROM python:3.11-slim
 
-# Telepíts rendszercsomagokat (ha kell pl. sqlite3 CLI)
+# Rendszercsomagok telepítése (pl. sqlite3 CLI és fejlécek)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    gcc libsqlite3-dev sqlite3 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+        gcc \
+        libsqlite3-dev \
+        sqlite3 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Munkakönyvtár beállítása
 WORKDIR /app
 
-# Függőségek telepítése
+# Python függőségek telepítése
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Forrás bemásolása
+# Forrásfájlok bemásolása
 COPY . .
 
-# Alapértelmezett parancs
+# Alapértelmezett parancs a konténer futtatásához
 CMD ["uvicorn", "checkin_api:app", "--host", "0.0.0.0", "--port", "8124"]
