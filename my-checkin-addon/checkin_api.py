@@ -1,10 +1,13 @@
 import sqlite3
 import os
+import requests
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 DB_PATH = "/config/guestbook.db"
+HA_URL = os.environ.get("HA_URL", "http://homeassistant:8123")
+HA_TOKEN = os.environ.get("HA_TOKEN", "")
 app = FastAPI()
 
 app.add_middleware(
@@ -87,9 +90,22 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
-    # ✅ Automatikus ajtónyitó email küldése shell scripten keresztül
-    cmd = f"ha core services call shell_command.send_access_link token={token}"
-    os.system(cmd)
+    # ✅ Helyes REST API hívás Home Assistant felé
+    if HA_TOKEN:
+        headers = {
+            "Authorization": f"Bearer {HA_TOKEN}",
+            "Content-Type": "application/json"
+        }
+        payload = { "token": token }
+
+        try:
+            r = requests.post(f"{HA_URL}/api/services/shell_command/send_access_link", headers=headers, json=payload)
+            if r.status_code != 200:
+                print(f"⚠️ Hiba a shell_command meghívásakor: {r.status_code} {r.text}")
+        except Exception as e:
+            print(f"⚠️ Kivétel történt a REST hívás során: {e}")
+    else:
+        print("⚠️ HA_TOKEN hiányzik, nem tudom meghívni a shell_command-et.")
 
     return {"status": "ok", "message": "Adatok frissítve és email elküldve."}
 
