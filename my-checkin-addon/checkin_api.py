@@ -9,7 +9,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # később szűkíthető
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -87,8 +87,8 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
-    # ✅ Automatikus ajtónyitó email küldése
-    cmd = f"SMTP_PASSWORD='{os.environ.get('SMTP_PASSWORD', '')}' python3 /config/scripts/send_access_link.py {token}"
+    # ✅ Automatikus ajtónyitó email küldése shell scripten keresztül
+    cmd = f"ha core services call shell_command.send_access_link token={token}"
     os.system(cmd)
 
     return {"status": "ok", "message": "Adatok frissítve és email elküldve."}
