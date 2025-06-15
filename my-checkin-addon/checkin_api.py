@@ -6,6 +6,14 @@ import requests
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from dotenv import load_dotenv
+
+from checkin_meta_api import router as meta_router
+
+# Betöltjük egyszer az .env fájlt és kiolvassuk a szükséges változókat
+load_dotenv("/config/.env")
+HA_TOKEN = os.getenv("HA_TOKEN")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 
 DB_PATH = "/config/guestbook.db"
 SCRIPT_PATH = "/config/scripts/send_access_link.py"
@@ -13,8 +21,6 @@ DOOR_MAP_PATH = "/config/guest_door_map.yaml"
 HA_URL = "http://homeassistant.local:8123/api/services"
 
 app = FastAPI()
-
-from checkin_meta_api import router as meta_router
 app.include_router(meta_router)
 
 app.add_middleware(
@@ -99,10 +105,7 @@ async def submit_guest_data(
 
     try:
         env = os.environ.copy()
-        if "SMTP_PASSWORD" not in env:
-            from dotenv import load_dotenv
-            load_dotenv("/config/.env")
-            env["SMTP_PASSWORD"] = os.getenv("SMTP_PASSWORD", "")
+        env["SMTP_PASSWORD"] = SMTP_PASSWORD
         result = subprocess.run(
             ["python3", SCRIPT_PATH, token],
             capture_output=True,
@@ -145,14 +148,8 @@ async def toggle_door(token: str):
         if not domain or not action or not entity_id:
             raise HTTPException(status_code=500, detail="Hiányos ajtókonfiguráció")
 
-        ha_token = os.getenv("HA_TOKEN")
-        if not ha_token:
-            from dotenv import load_dotenv
-            load_dotenv("/config/.env")
-            ha_token = os.getenv("HA_TOKEN")
-
         headers = {
-            "Authorization": f"Bearer {ha_token}",
+            "Authorization": f"Bearer {HA_TOKEN}",
             "Content-Type": "application/json"
         }
 
