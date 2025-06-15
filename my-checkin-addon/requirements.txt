@@ -3,3 +3,5 @@ uvicorn
 python-dotenv
 python-multipart
 pyyaml
+requests
+python-dotenv
