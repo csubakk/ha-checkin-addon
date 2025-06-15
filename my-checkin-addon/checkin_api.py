@@ -4,11 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 DB_PATH = "/config/guestbook.db"
+QUEUE_FILE = "/config/checkin_event_queue.txt"
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # később szűkíthető
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -86,7 +87,14 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
-    return {"status": "ok", "message": "Adatok frissítve."}
+    # ✅ Log fájlba írás
+    try:
+        with open(QUEUE_FILE, "a") as f:
+            f.write(f"{token}\n")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Nem sikerült logolni: {str(e)}")
+
+    return {"status": "ok", "message": "Adatok frissítve, feldolgozás folyamatban."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8124)
