@@ -60,8 +60,8 @@ async def get_door_state(token: str):
         }
 
         response = requests.get(
-        f"{HA_URL}/states/{entity_id}"
-        headers=headers
+            f"{HA_URL}/states/{entity_id}"
+            headers=headers
         )
 
         if response.status_code != 200:
