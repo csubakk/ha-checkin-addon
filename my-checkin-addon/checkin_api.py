@@ -20,6 +20,9 @@ from email import encoders
 from email.utils import formatdate, make_msgid
 from PIL import Image
 from io import BytesIO
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+pdfmetrics.registerFont(TTFont('DejaVuSans', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
 
 def generate_guest_pdf(data: dict, path: str):
     c = canvas.Canvas(path, pagesize=A4)
@@ -33,11 +36,11 @@ def generate_guest_pdf(data: dict, path: str):
     y = height - 50
     c.setFillColorRGB(0, 0, 0)  # vissza fekete szövegszínre
 
-    c.setFont("Helvetica-Bold", 16)
+    c.setFont("DejaVuSans", 16)
     c.drawString(50, y, "Vendég check-in adatok")
     y -= 30
 
-    c.setFont("Helvetica", 12)
+    c.setFont("DejaVuSans", 12)
     for key, value in data.items():
         c.drawString(50, y, f"{key.replace('_', ' ').capitalize()}: {value}")
         y -= 20
