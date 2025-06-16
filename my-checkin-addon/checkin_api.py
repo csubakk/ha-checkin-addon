@@ -18,6 +18,8 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from email.utils import formatdate, make_msgid
+from PIL import Image
+from io import BytesIO
 
 def generate_guest_pdf(data: dict, path: str, image_path: str = None):
     c = canvas.Canvas(path, pagesize=A4)
@@ -166,10 +168,18 @@ async def submit_guest_data(
     travel_purpose: str = Form(""),
     signature: str = Form("")
 ):
-    # 📁 Dokumentumfotó mentése biztonságos helyre
+
+    # 📁 Dokumentumfotó mentése biztonságos módon
     save_path = f"/config/private_docs/{token}_document.jpg"
-    with open(save_path, "wb") as buffer:
-        buffer.write(await document_photo.read())
+
+    image_bytes = await document_photo.read()
+
+    try:
+        img = Image.open(BytesIO(image_bytes))
+        rgb_img = img.convert("RGB")  # konvertálás biztos JPEG-be
+        rgb_img.save(save_path, format="JPEG", quality=90)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Nem sikerült feldolgozni a képet: {str(e)}")
 
     # 🗃️ Adatbázis frissítés
     conn = sqlite3.connect(DB_PATH)
