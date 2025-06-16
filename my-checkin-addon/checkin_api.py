@@ -103,9 +103,9 @@ async def get_guest_data(token: str):
 
 @app.post("/local/checkin_data/{token}.submit")
 async def submit_guest_data(
+    request: Request,
     token: str,
     document_photo: UploadFile = File(...),
-    request: Request,
     guest_first_name: str = Form(...),
     guest_last_name: str = Form(...),
     nationality: str = Form(...),
