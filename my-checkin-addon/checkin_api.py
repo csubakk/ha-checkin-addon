@@ -22,7 +22,7 @@ from PIL import Image
 from io import BytesIO
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
-pdfmetrics.registerFont(TTFont('DejaVuSans', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
+pdfmetrics.registerFont(TTFont('DejaVuSans', '/config/DejaVuSans.ttf'))
 
 def generate_guest_pdf(data: dict, path: str):
     c = canvas.Canvas(path, pagesize=A4)
