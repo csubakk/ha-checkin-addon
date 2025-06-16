@@ -271,7 +271,7 @@ async def submit_guest_data(
             server.login(SMTP_USER, SMTP_PASSWORD)
             server.sendmail(SENDER_EMAIL, OWNER_EMAIL, msg.as_string())
 
-      except Exception as e:
+    except Exception as e:
         print("EMAIL HIBA:", str(e))
         return {"status": "error", "message": "Email küldés sikertelen, de a PDF elkészült."}
 
