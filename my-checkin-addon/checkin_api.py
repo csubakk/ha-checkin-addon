@@ -9,7 +9,6 @@ import uvicorn
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
 from reportlab.lib.colors import HexColor
 from checkin_meta_api import router as meta_router
 import smtplib
@@ -21,7 +20,7 @@ from email.utils import formatdate, make_msgid
 from PIL import Image
 from io import BytesIO
 
-def generate_guest_pdf(data: dict, path: str, image_path: str = None):
+def generate_guest_pdf(data: dict, path: str):
     c = canvas.Canvas(path, pagesize=A4)
     width, height = A4
 
@@ -41,18 +40,6 @@ def generate_guest_pdf(data: dict, path: str, image_path: str = None):
     for key, value in data.items():
         c.drawString(50, y, f"{key.replace('_', ' ').capitalize()}: {value}")
         y -= 20
-
-    if image_path and os.path.exists(image_path):
-        y -= 30
-        c.setFont("Helvetica-Bold", 14)
-        c.drawString(50, y, "Igazolvány fotó:")
-        y -= 200
-
-        try:
-            img = ImageReader(image_path)
-            c.drawImage(img, 50, y, width=200, preserveAspectRatio=True, mask='auto')
-        except Exception as e:
-            c.drawString(50, y, f"(Nem sikerült betölteni a képet: {e})")
 
     c.save()
 
@@ -271,6 +258,14 @@ async def submit_guest_data(
             part.add_header("Content-Disposition", f'attachment; filename="{token}_checkin.pdf"')
             msg.attach(part)
 
+        # Csatoljuk a JPG-t is
+        with open(image_path, "rb") as f:
+            part = MIMEBase("image", "jpeg")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", f'attachment; filename="{token}_document.jpg"')
+            msg.attach(part)
+        
         context = ssl.create_default_context()
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls(context=context)
