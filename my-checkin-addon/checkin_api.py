@@ -197,7 +197,7 @@ async def toggle_door(token: str):
         }
 
         response = requests.post(
-            f"{HA_URL}/{domain}/{action}",
+            f"{HA_URL}/services/{domain}/{action}",
             headers=headers,
             json={"entity_id": entity_id}
         )
