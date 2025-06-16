@@ -136,7 +136,9 @@ async def get_guest_data(token: str):
         "cnp": row["cnp"] or "",
         "address": row["address"] or "",
         "travel_purpose": row["travel_purpose"] or "",
-        "signature": row["signature"] or ""
+        "signature": row["signature"] or "",
+        # ⬇️ akkor tekintjük beküldöttnek, ha a nemzetiség (vagy más kulcsmező) már ki van töltve
+        "already_submitted": bool(row["nationality"])
     }
 
 @app.post("/local/checkin_data/{token}.submit")
