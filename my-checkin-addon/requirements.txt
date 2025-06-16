@@ -5,3 +5,4 @@ python-multipart
 pyyaml
 requests
 python-dotenv
+reportlab
