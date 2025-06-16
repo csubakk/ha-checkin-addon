@@ -30,6 +30,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/local/door/{token}/state")
+async def get_door_state(token: str):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT guest_house_id FROM guest_bookings WHERE access_token = ?", (token,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Token not found")
+
+    house_id = str(row["guest_house_id"])
+
+    try:
+        with open(DOOR_MAP_PATH, "r") as f:
+            door_map = yaml.safe_load(f)
+        config = door_map[house_id]
+        entity_id = config.get("entity_id")
+
+        if not entity_id:
+            raise HTTPException(status_code=500, detail="Hiányos ajtókonfiguráció")
+
+        headers = {
+            "Authorization": f"Bearer {HA_TOKEN}"
+        }
+
+        response = requests.get(
+        f"{HA_URL.replace('/api/services', '')}/states/{entity_id}",
+        headers=headers
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail=f"HA válasz: {response.status_code} {response.text}")
+
+        data = response.json()
+        return {"state": data["state"]}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Hiba az állapot lekérdezéskor: {str(e)}")
+
 @app.get("/local/checkin_data/{token}.json")
 async def get_guest_data(token: str):
     conn = sqlite3.connect(DB_PATH)
