@@ -19,7 +19,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ⬇️ Fontfájl bemásolása
-COPY fonts/DejaVuSans.ttf /config/DejaVuSans.ttf
+COPY fonts/DejaVuSans.ttf /app/fonts/DejaVuSans.ttf
 
 # Forráskód bemásolása
 COPY . .
