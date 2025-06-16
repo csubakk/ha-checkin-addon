@@ -1,6 +1,7 @@
 import sqlite3
 import subprocess
 import os
+import ssl
 import yaml
 import requests
 from fastapi import FastAPI, HTTPException, Form, File, UploadFile, Request
@@ -258,12 +259,12 @@ async def submit_guest_data(
             msg.attach(part)
 
         # Csatoljuk a JPG-t is
-#        with open(image_path, "rb") as f:
-#            part = MIMEBase("image", "jpeg")
-#            part.set_payload(f.read())
-#            encoders.encode_base64(part)
-#            part.add_header("Content-Disposition", f'attachment; filename="{token}_document.jpg"')
-#            msg.attach(part)
+        with open(image_path, "rb") as f:
+            part = MIMEBase("image", "jpeg")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", f'attachment; filename="{token}_document.jpg"')
+            msg.attach(part)
         
         context = ssl.create_default_context()
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
