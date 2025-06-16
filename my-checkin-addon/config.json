@@ -1,8 +1,8 @@
 {
   "name": "Check-in Backend",
-  "version": "1.0",
+  "version": "1.1",
   "slug": "checkin",
-  "description": "Vendég check-in backend FastAPI-val",
+  "description": "PRIVATE - Vendég check-in backend FastAPI-val",
   "startup": "application",
   "boot": "auto",
   "host_network": true,
