@@ -230,6 +230,7 @@ async def submit_guest_data(
     }
 
     pdf_path = f"/config/private_docs/{token}_checkin.pdf"
+    image_path = f"/config/private_docs/{token}_document.jpg"
     generate_guest_pdf(guest_data, pdf_path)
     
     # 📧 Email küldés a gazdának PDF-melléklettel
