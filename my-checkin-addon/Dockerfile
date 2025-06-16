@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Rendszercsomagok telepítése (pl. sqlite3 CLI és fejlécek + libfreetype és libjpeg reportlab-hoz)
+# Rendszercsomagok telepítése
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         gcc \
@@ -14,12 +14,15 @@ RUN apt-get update && \
 # Munkakönyvtár beállítása
 WORKDIR /app
 
-# Python függőségek telepítése
+# Python függőségek
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Forrásfájlok bemásolása
+# ⬇️ Fontfájl bemásolása
+COPY fonts/DejaVuSans.ttf /config/DejaVuSans.ttf
+
+# Forráskód bemásolása
 COPY . .
 
-# Alapértelmezett parancs a konténer futtatásához
+# Konténer indulás
 CMD ["uvicorn", "checkin_api:app", "--host", "0.0.0.0", "--port", "8124"]
