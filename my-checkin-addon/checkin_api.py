@@ -60,7 +60,7 @@ async def get_door_state(token: str):
         }
 
         response = requests.get(
-            f"{HA_URL}/states/{entity_id}"
+            f"{HA_URL}/states/{entity_id}",
             headers=headers
         )
 
