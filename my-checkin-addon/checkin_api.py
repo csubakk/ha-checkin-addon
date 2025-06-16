@@ -229,7 +229,6 @@ async def submit_guest_data(
     }
 
     pdf_path = f"/config/private_docs/{token}_checkin.pdf"
-    image_path = f"/config/private_docs/{token}_document.jpg"
     generate_guest_pdf(guest_data, pdf_path)
     
     # 📧 Email küldés a gazdának PDF-melléklettel
@@ -259,12 +258,12 @@ async def submit_guest_data(
             msg.attach(part)
 
         # Csatoljuk a JPG-t is
-        with open(image_path, "rb") as f:
-            part = MIMEBase("image", "jpeg")
-            part.set_payload(f.read())
-            encoders.encode_base64(part)
-            part.add_header("Content-Disposition", f'attachment; filename="{token}_document.jpg"')
-            msg.attach(part)
+#        with open(image_path, "rb") as f:
+#            part = MIMEBase("image", "jpeg")
+#            part.set_payload(f.read())
+#            encoders.encode_base64(part)
+#            part.add_header("Content-Disposition", f'attachment; filename="{token}_document.jpg"')
+#            msg.attach(part)
         
         context = ssl.create_default_context()
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
@@ -272,9 +271,9 @@ async def submit_guest_data(
             server.login(SMTP_USER, SMTP_PASSWORD)
             server.sendmail(SENDER_EMAIL, OWNER_EMAIL, msg.as_string())
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"PDF csatolásos email küldése sikertelen: {str(e)}")
-
+      except Exception as e:
+        print("EMAIL HIBA:", str(e))
+        return {"status": "error", "message": "Email küldés sikertelen, de a PDF elkészült."}
 
     
     return {"status": "ok", "message": "Adatok frissítve, email elküldve."}
