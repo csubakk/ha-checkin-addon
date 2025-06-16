@@ -5,6 +5,7 @@ import yaml
 import requests
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import File, UploadFile
 import uvicorn
 from dotenv import load_dotenv
 
@@ -103,6 +104,8 @@ async def get_guest_data(token: str):
 @app.post("/local/checkin_data/{token}.submit")
 async def submit_guest_data(
     token: str,
+    document_photo: UploadFile = File(...),
+    request: Request,
     guest_first_name: str = Form(...),
     guest_last_name: str = Form(...),
     nationality: str = Form(...),
@@ -115,6 +118,12 @@ async def submit_guest_data(
     travel_purpose: str = Form(""),
     signature: str = Form("")
 ):
+    # 📁 Dokumentumfotó mentése biztonságos helyre
+    save_path = f"/config/private_docs/{token}_document.jpg"
+    with open(save_path, "wb") as buffer:
+        buffer.write(await document_photo.read())
+
+    # 🗃️ Adatbázis frissítés
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
@@ -146,6 +155,7 @@ async def submit_guest_data(
     if affected == 0:
         raise HTTPException(status_code=404, detail="Token not found")
 
+    # 📤 Email küldés subprocess segítségével
     try:
         env = os.environ.copy()
         env["SMTP_PASSWORD"] = SMTP_PASSWORD
