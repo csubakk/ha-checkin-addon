@@ -7,18 +7,67 @@ from fastapi import FastAPI, HTTPException, Form, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from dotenv import load_dotenv
-
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
+from reportlab.lib.colors import HexColor
 from checkin_meta_api import router as meta_router
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+from email.utils import formatdate, make_msgid
+
+def generate_guest_pdf(data: dict, path: str, image_path: str = None):
+    c = canvas.Canvas(path, pagesize=A4)
+    width, height = A4
+
+    # 🌿 Háttér világoszöld színnel
+    light_green = HexColor("#CCFFCC")  # világoszöld hex kód
+    c.setFillColor(light_green)
+    c.rect(0, 0, width, height, fill=True, stroke=False)  # teljes oldalra
+
+    y = height - 50
+    c.setFillColorRGB(0, 0, 0)  # vissza fekete szövegszínre
+
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(50, y, "Vendég check-in adatok")
+    y -= 30
+
+    c.setFont("Helvetica", 12)
+    for key, value in data.items():
+        c.drawString(50, y, f"{key.replace('_', ' ').capitalize()}: {value}")
+        y -= 20
+
+    if image_path and os.path.exists(image_path):
+        y -= 30
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(50, y, "Igazolvány fotó:")
+        y -= 200
+
+        try:
+            img = ImageReader(image_path)
+            c.drawImage(img, 50, y, width=200, preserveAspectRatio=True, mask='auto')
+        except Exception as e:
+            c.drawString(50, y, f"(Nem sikerült betölteni a képet: {e})")
+
+    c.save()
 
 # Betöltjük egyszer az .env fájlt és kiolvassuk a szükséges változókat
 load_dotenv("/config/.env")
 HA_TOKEN = os.getenv("HA_TOKEN")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+SENDER_NAME = os.getenv("SENDER_NAME")
+SMTP_SERVER = os.getenv("SMTP_SERVER")
+SMTP_USER = os.getenv("SMTP_USER")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 DB_PATH = "/config/guestbook.db"
 SCRIPT_PATH = "/config/scripts/send_access_link.py"
 DOOR_MAP_PATH = "/config/guest_door_map.yaml"
 HA_URL = os.getenv("HA_URL", "http://homeassistant.local:8123/api/services")
+OWNER_EMAIL = os.getenv("OWNER_EMAIL")
 
 app = FastAPI()
 app.include_router(meta_router)
@@ -169,8 +218,63 @@ async def submit_guest_data(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Hiba emailküldés közben: {str(e)}")
 
-    return {"status": "ok", "message": "Adatok frissítve, email elküldve."}
+    # 📄 PDF generálás a gazdának
+    guest_data = {
+        "Név": f"{guest_first_name} {guest_last_name}",
+        "Nemzetiség": nationality,
+        "Születési idő": birth_date,
+        "Születési hely": birth_place,
+        "Igazolvány típusa": document_type,
+        "Igazolvány szám": document_number,
+        "CNP": cnp,
+        "Cím": address,
+        "Utazás célja": travel_purpose
+    }
 
+    pdf_path = f"/config/private_docs/{token}_checkin.pdf"
+    image_path = f"/config/private_docs/{token}_document.jpg"
+    generate_guest_pdf(guest_data, pdf_path)
+    
+    # 📧 Email küldés a gazdának PDF-melléklettel
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
+        msg["To"] = OWNER_EMAIL
+        msg["Subject"] = f"Vendég bejelentkezés: {guest_first_name} {guest_last_name}"
+        msg["Date"] = formatdate(localtime=True)
+        msg["Message-ID"] = make_msgid()
+
+        msg.attach(MIMEText(f"""Új vendég check-in érkezett.
+
+    Név: {guest_first_name} {guest_last_name}
+    Nemzetiség: {nationality}
+    Születési idő: {birth_date}
+
+    A csatolt PDF tartalmazza a teljes adatlapot.
+    """, "plain"))
+
+        # Csatoljuk a PDF-et
+        with open(pdf_path, "rb") as f:
+            part = MIMEBase("application", "pdf")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", f'attachment; filename="{token}_checkin.pdf"')
+            msg.attach(part)
+
+        context = ssl.create_default_context()
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls(context=context)
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.sendmail(SENDER_EMAIL, OWNER_EMAIL, msg.as_string())
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF csatolásos email küldése sikertelen: {str(e)}")
+
+
+    
+    return {"status": "ok", "message": "Adatok frissítve, email elküldve."}
+    
+    
 @app.post("/local/door/{token}/toggle")
 async def toggle_door(token: str):
     conn = sqlite3.connect(DB_PATH)
