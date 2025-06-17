@@ -231,8 +231,8 @@ async def submit_guest_data(
     # 📄 PDF generálás a gazdának
     guest_data = {
         "Név": f"{guest_first_name} {guest_last_name}",
-        "Érkezés dátuma": checkin_data,
-        "Távozás dátuma": checout_data,
+        "Érkezés dátuma": checkin_time,
+        "Távozás dátuma": checkout_time,
         "Nemzetiség": nationality,
         "Születési idő": birth_date,
         "Születési hely": birth_place,
