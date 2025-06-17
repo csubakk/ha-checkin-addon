@@ -174,14 +174,16 @@ async def submit_guest_data(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Nem sikerült feldolgozni a képet: {str(e)}")
 
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
     cursor.execute("SELECT checkin_time, checkout_time FROM guest_bookings WHERE access_token = ?", (token,))
     times = cursor.fetchone()
     checkin_time = times["checkin_time"] if times else ""
     checkout_time = times["checkout_time"] if times else ""
     
     # 🗃️ Adatbázis frissítés
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
 
     cursor.execute("""
         UPDATE guest_bookings SET
