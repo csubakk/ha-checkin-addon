@@ -139,6 +139,8 @@ async def get_guest_data(token: str):
         "cnp": row["cnp"] or "",
         "address": row["address"] or "",
         "travel_purpose": row["travel_purpose"] or "",
+        "checkin_data": row["checkin_time"] or "",
+        "checout_data": row["checkout_time"] or "",
         "signature": row["signature"] or "",
         # ⬇️ akkor tekintjük beküldöttnek, ha a nemzetiség (vagy más kulcsmező) már ki van töltve
         "already_submitted": bool(row["nationality"])
@@ -224,6 +226,8 @@ async def submit_guest_data(
     # 📄 PDF generálás a gazdának
     guest_data = {
         "Név": f"{guest_first_name} {guest_last_name}",
+        "Érkezés dátuma": checkin_data,
+        "Távozás dátuma": checout_data,
         "Nemzetiség": nationality,
         "Születési idő": birth_date,
         "Születési hely": birth_place,
