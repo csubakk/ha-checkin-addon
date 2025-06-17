@@ -139,8 +139,6 @@ async def get_guest_data(token: str):
         "cnp": row["cnp"] or "",
         "address": row["address"] or "",
         "travel_purpose": row["travel_purpose"] or "",
-        "checkin_data": row["checkin_time"] or "",
-        "checout_data": row["checkout_time"] or "",
         "signature": row["signature"] or "",
         # ⬇️ akkor tekintjük beküldöttnek, ha a nemzetiség (vagy más kulcsmező) már ki van töltve
         "already_submitted": bool(row["nationality"])
@@ -176,6 +174,11 @@ async def submit_guest_data(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Nem sikerült feldolgozni a képet: {str(e)}")
 
+    cursor.execute("SELECT checkin_time, checkout_time FROM guest_bookings WHERE access_token = ?", (token,))
+    times = cursor.fetchone()
+    checkin_time = times["checkin_time"] if times else ""
+    checkout_time = times["checkout_time"] if times else ""
+    
     # 🗃️ Adatbázis frissítés
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
