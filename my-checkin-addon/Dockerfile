@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Rendszercsomagok telepítése
+# 🧱 Rendszercsomagok telepítése
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         gcc \
@@ -11,18 +11,22 @@ RUN apt-get update && \
         zlib1g-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Munkakönyvtár beállítása
+# 📁 Munkakönyvtár beállítása
 WORKDIR /app
 
-# Python függőségek
+# 📦 Python-függőségek telepítése
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ⬇️ Fontfájl bemásolása
+# 🔤 Betűtípus bemásolása
 COPY fonts/DejaVuSans.ttf /app/fonts/DejaVuSans.ttf
 
-# Forráskód bemásolása
+# 📜 Script mappa létrehozása és bemásolása
+RUN mkdir -p /app/scripts
+COPY scripts/generate_ics.py /app/scripts/generate_ics.py
+
+# 🧠 Forráskód bemásolása (végül)
 COPY . .
 
-# Konténer indulás
+# 🚀 Konténer indulás
 CMD ["uvicorn", "checkin_api:app", "--host", "0.0.0.0", "--port", "8124"]
