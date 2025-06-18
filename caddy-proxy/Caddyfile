@@ -1,4 +1,4 @@
-teszt.tapexpert.eu {
+http://teszt.tapexpert.eu {
   reverse_proxy /calendar* 172.30.32.1:8124
   reverse_proxy /edit_booking* 172.30.32.1:8124
   reverse_proxy /* 172.30.32.1:8123
