@@ -1,0 +1,15 @@
+{
+  "name": "Caddy Proxy",
+  "version": "1.0.0",
+  "slug": "caddy_proxy",
+  "description": "Egyszerű Caddy reverse proxy Home Assistant és FastAPI addon számára.",
+  "startup": "services",
+  "boot": "auto",
+  "host_network": true,
+  "arch": ["aarch64", "amd64"],
+  "ports": {
+    "80/tcp": 80,
+    "443/tcp": 443
+  },
+  "map": ["ssl:ro", "config:rw"]
+}
