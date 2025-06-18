@@ -6,3 +6,4 @@ pyyaml
 requests
 reportlab
 pillow
+ics==0.7.2
