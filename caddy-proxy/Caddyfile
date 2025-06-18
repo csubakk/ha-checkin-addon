@@ -1,4 +1,4 @@
-teszt.tapexpert.eu {
+:80 {
   reverse_proxy /calendar* 172.30.32.1:8124
   reverse_proxy /* 172.30.32.1:8123
 }
