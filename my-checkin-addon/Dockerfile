@@ -21,9 +21,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 🔤 Betűtípus bemásolása
 COPY fonts/DejaVuSans.ttf /app/fonts/DejaVuSans.ttf
 
-# 📜 Script mappa létrehozása és bemásolása
-RUN mkdir -p /app/scripts
-COPY scripts/generate_ics.py /app/scripts/generate_ics.py
 
 # 🧠 Forráskód bemásolása (végül)
 COPY . .
