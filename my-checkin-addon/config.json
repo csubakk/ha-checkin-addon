@@ -7,6 +7,9 @@
   "boot": "auto",
   "host_network": true,
   "map": ["config:rw"],
+  "ports": {
+    "8124/tcp": 8124
+  },
   "arch": ["aarch64", "amd64"],
   "options": {},
   "schema": {}
