@@ -2,18 +2,22 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 import sqlite3
 from datetime import datetime, timedelta
+import locale
 
 router = APIRouter()
-
 DB_PATH = "/config/guestbook.db"
+
+# Magyar lokalizáció
+try:
+    locale.setlocale(locale.LC_TIME, "hu_HU.utf8")
+except:
+    locale.setlocale(locale.LC_TIME, "hu_HU")
 
 @router.get("/calendar", response_class=HTMLResponse)
 def calendar_page(request: Request):
     today = datetime.today().date()
-    start_date = today - timedelta(days=7)  # vissza 1 hét
-    end_date = today + timedelta(weeks=6)   # előre 6 hét
-
-    # Napok listája
+    start_date = today - timedelta(days=7)
+    end_date = today + timedelta(weeks=6)
     days = [(start_date + timedelta(days=i)) for i in range((end_date - start_date).days + 1)]
 
     conn = sqlite3.connect(DB_PATH)
@@ -28,7 +32,6 @@ def calendar_page(request: Request):
     bookings = cursor.fetchall()
     conn.close()
 
-    # Foglalások dátum szerint
     date_map = {}
     for row in bookings:
         fname = row["guest_first_name"] or ""
@@ -43,12 +46,11 @@ def calendar_page(request: Request):
         except:
             continue
 
-    # HTML táblázat építés
     rows = []
     for d in days:
         iso = d.isoformat()
-        day_label = d.strftime("%Y. %B %d.")
-        dow = d.strftime("%a")[0]  # csak kezdőbetű pl. H, K, Sz
+        day_label = d.strftime("%Y. %B %d.").capitalize()
+        dow = d.strftime("%A")[0].upper()
         weekend = d.weekday() in [5, 6]
         is_today = (d == today)
         guest = date_map.get(d, "")
@@ -58,38 +60,67 @@ def calendar_page(request: Request):
         row += f"<td><button onclick=\"window.open('/edit_booking?date={iso}')\">✏️</button></td></tr>"
         rows.append(row)
 
-    table_html = """
+    html = f"""
     <!DOCTYPE html>
-    <html lang=\"hu\">
+    <html lang="hu">
     <head>
-        <meta charset=\"UTF-8\">
-        <title>Foglalási naptár – 1 szoba</title>
+        <meta charset="UTF-8">
+        <title>Foglalási naptár – 1. szoba</title>
         <style>
-            body { font-family: sans-serif; margin: 20px; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { padding: 6px 8px; border: 1px solid #ccc; text-align: left; }
-            tr.weekend { background-color: #e0f5e0; }
-            tr.today { background-color: #ffe0e0; font-weight: bold; }
-            .nav { margin: 10px 0; }
-            .nav a { text-decoration: none; margin-right: 10px; background: #eee; padding: 5px 10px; border-radius: 4px; color: black; }
+            body {{
+                font-family: sans-serif;
+                margin: 20px;
+            }}
+            table {{
+                border-collapse: collapse;
+                width: 100%;
+                table-layout: fixed;
+            }}
+            th, td {{
+                padding: 6px 8px;
+                border: 1px solid #ccc;
+                text-align: left;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }}
+            th:nth-child(1), td:nth-child(1) {{ width: 7em; }}
+            th:nth-child(2), td:nth-child(2) {{ width: 2em; text-align: center; }}
+            th:nth-child(3), td:nth-child(3) {{ max-width: 10em; }}
+            tr.weekend {{ background-color: #e0f5e0; }}
+            tr.today {{ background-color: #ffe0e0; font-weight: bold; }}
+            .nav {{
+                margin: 10px 0;
+            }}
+            .nav a {{
+                text-decoration: none;
+                margin-right: 10px;
+                background: #eee;
+                padding: 5px 10px;
+                border-radius: 4px;
+                color: black;
+            }}
+            @media (max-width: 600px) {{
+                body {{ font-size: 0.9em; }}
+                th:nth-child(3), td:nth-child(3) {{ max-width: 6em; }}
+            }}
         </style>
     </head>
     <body>
         <h2>Foglalási naptár – 1. szoba</h2>
-        <div class=\"nav\">
-            <a href=\"#\">⬅️ Vissza</a>
-            <a href=\"#\">Előre ➡️</a>
+        <div class="nav">
+            <a href="#">⬅️ Vissza</a>
+            <a href="#">Előre ➡️</a>
         </div>
         <table>
             <thead>
                 <tr><th>Dátum</th><th>Nap</th><th>Vendég</th><th>Szerkesztés</th></tr>
             </thead>
             <tbody>
-                {rows}
+                {"".join(rows)}
             </tbody>
         </table>
     </body>
     </html>
-    """.replace("{rows}", "\n".join(rows))
-
-    return HTMLResponse(content=table_html)
+    """
+    return HTMLResponse(content=html)
