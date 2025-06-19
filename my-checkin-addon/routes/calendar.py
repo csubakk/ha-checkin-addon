@@ -127,7 +127,7 @@ def calendar_page(request: Request):
 
     @media (max-width: 600px) {
         body {
-            font-size: 1.1em;
+            font-size: 1.0em;
         }
         th, td {
             padding: 6px 6px;
