@@ -15,7 +15,6 @@ NAPOK = ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V']
 HONAPOK = ['', 'jan.', 'feb.', 'márc.', 'ápr.', 'máj.', 'jún.',
            'júl.', 'aug.', 'szep.', 'okt.', 'nov.', 'dec.']
 
-
 def get_guest_house_ids_from_ha():
     import os
     import requests
@@ -36,7 +35,6 @@ def get_guest_house_ids_from_ha():
     except Exception as e:
         print("❌ Nem sikerült lekérni a szobaazonosítókat:", e)
         return ["1"]
-
 
 @router.get("/calendar", response_class=HTMLResponse)
 def calendar_page(request: Request):
@@ -103,10 +101,10 @@ def calendar_page(request: Request):
 
     table_html = f"""
     <!DOCTYPE html>
-    <html lang="hu">
+    <html lang=\"hu\">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset=\"UTF-8\">
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
         <title>Foglalási naptár</title>
         <style>
             body {{
@@ -158,9 +156,9 @@ def calendar_page(request: Request):
     </head>
     <body>
         <h2>Foglalási naptár</h2>
-        <div class="nav">
-            <a href="#">⬅️ Vissza</a>
-            <a href="#">Előre ➡️</a>
+        <div class=\"nav\">
+            <a href=\"#\">⬅️ Vissza</a>
+            <a href=\"#\">Előre ➡️</a>
         </div>
         
         <table>
