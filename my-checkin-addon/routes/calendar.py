@@ -18,8 +18,8 @@ def calendar_page(request: Request):
 
     napok = ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V']
     honapok = [
-        '', 'január', 'február', 'március', 'április', 'május', 'június',
-        'július', 'augusztus', 'szeptember', 'október', 'november', 'december'
+        '', 'jan.', 'feb.', 'márc.', 'ápr.', 'máj.', 'jún.',
+        'júl.', 'aug.', 'szep.', 'okt.', 'nov.', 'dec.'
     ]
 
     conn = sqlite3.connect(DB_PATH)
@@ -91,7 +91,7 @@ def calendar_page(request: Request):
     }
 
     th:nth-child(1), td:nth-child(1) {
-        width: 8em;
+        width: 7em;
     }
 
     th:nth-child(2), td:nth-child(2) {
