@@ -17,16 +17,25 @@ HONAPOK = ['', 'jan.', 'feb.', 'márc.', 'ápr.', 'máj.', 'jún.',
 
 
 def get_guest_house_ids_from_ha():
-    url = f"{HA_URL}/states/input_select.guest_house_id"
-    headers = {"Authorization": f"Bearer {HA_TOKEN}"}
+    import os
+    import requests
+
+    HA_URL = os.getenv("HA_URL", "http://homeassistant.local:8123")
+    HA_TOKEN = os.getenv("HA_TOKEN", "")
+    headers = {
+        "Authorization": f"Bearer {HA_TOKEN}",
+        "Content-Type": "application/json",
+    }
+
     try:
-        response = requests.get(url, headers=headers, timeout=5)
+        response = requests.get(f"{HA_URL}/states/input_select.guest_house_id", headers=headers, timeout=5)
         response.raise_for_status()
         data = response.json()
-        return data["attributes"]["options"]
+        options = data.get("attributes", {}).get("options", [])
+        return [str(opt).strip() for opt in options if str(opt).strip()]
     except Exception as e:
-        print(f"HIBA: Nem sikerült lekérni a szobalistát HA-ból: {e}")
-        return ["1"]  # Alapértelmezésként 1 szoba
+        print("❌ Nem sikerült lekérni a szobaazonosítókat:", e)
+        return ["1"]
 
 
 @router.get("/calendar", response_class=HTMLResponse)
