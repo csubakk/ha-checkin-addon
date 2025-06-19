@@ -89,7 +89,8 @@ def calendar_page(request: Request):
     }
 
     th:nth-child(1), td:nth-child(1) {
-        width: 7em;
+        min-width: 10em;
+        max-width: 14em;
     }
 
     th:nth-child(2), td:nth-child(2) {
