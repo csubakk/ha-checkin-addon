@@ -16,7 +16,7 @@ def calendar_page(request: Request):
     end_date = today + timedelta(weeks=6)
     days = [(start_date + timedelta(days=i)) for i in range((end_date - start_date).days + 1)]
 
-    napok = ['H', 'K', 'S', 'C', 'P', 'S', 'V']  # hétfő–vasárnap
+    napok = ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V']
     honapok = [
         '', 'január', 'február', 'március', 'április', 'május', 'június',
         'július', 'augusztus', 'szeptember', 'október', 'november', 'december'
@@ -66,15 +66,75 @@ def calendar_page(request: Request):
     <head>
         <meta charset="UTF-8">
         <title>Foglalási naptár – 1 szoba</title>
+        
         <style>
-            body { font-family: sans-serif; margin: 20px; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { padding: 6px 8px; border: 1px solid #ccc; text-align: left; }
-            tr.weekend { background-color: #e0f5e0; }
-            tr.today { background-color: #ffe0e0; font-weight: bold; }
-            .nav { margin: 10px 0; }
-            .nav a { text-decoration: none; margin-right: 10px; background: #eee; padding: 5px 10px; border-radius: 4px; color: black; }
-        </style>
+    body {
+        font-family: sans-serif;
+        margin: 20px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    th, td {
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    th:nth-child(1), td:nth-child(1) {
+        width: 7em;
+    }
+
+    th:nth-child(2), td:nth-child(2) {
+        width: 3.5em;
+        text-align: center;
+    }
+
+    th:nth-child(3), td:nth-child(3) {
+        max-width: 10em;
+    }
+
+    tr.weekend {
+        background-color: #e0f5e0;
+    }
+
+    tr.today {
+        background-color: #ffe0e0;
+        font-weight: bold;
+    }
+
+    .nav {
+        margin: 10px 0;
+    }
+
+    .nav a {
+        text-decoration: none;
+        margin-right: 10px;
+        background: #eee;
+        padding: 5px 10px;
+        border-radius: 4px;
+        color: black;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            font-size: 0.9em;
+        }
+        th, td {
+            padding: 4px 6px;
+        }
+        th:nth-child(3), td:nth-child(3) {
+            max-width: 6em;
+        }
+    }
+</style>
     </head>
     <body>
         <h2>Foglalási naptár – 1. szoba</h2>
