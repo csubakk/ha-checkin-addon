@@ -71,6 +71,7 @@ def calendar_page(request: Request):
     body {
         font-family: sans-serif;
         margin: 20px;
+        font-size: 1em;  /* alapértelmezett mindenre */
     }
 
     table {
@@ -125,10 +126,10 @@ def calendar_page(request: Request):
 
     @media (max-width: 600px) {
         body {
-            font-size: 0.9em;
+            font-size: 1.1em;
         }
         th, td {
-            padding: 4px 6px;
+            padding: 6px 6px;
         }
         th:nth-child(3), td:nth-child(3) {
             max-width: 6em;
