@@ -91,11 +91,11 @@ def calendar_page(request: Request):
     }
 
     th:nth-child(1), td:nth-child(1) {
-        width: 9em;
+        width: 8em;
     }
 
     th:nth-child(2), td:nth-child(2) {
-        width: 3.5em;
+        width: 3em;
         text-align: center;
     }
 
