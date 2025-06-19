@@ -162,7 +162,7 @@ def calendar_page(request: Request):
             <a href="#">⬅️ Vissza</a>
             <a href="#">Előre ➡️</a>
         </div>
-        <h2>Foglalási naptár – {len(room_ids)} szoba</h2>
+        
         <table>
             <thead>
                 <tr>{th_cells}</tr>
