@@ -12,8 +12,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor
 from checkin_meta_api import router as meta_router
-from routes import calendar, booking_editor, notifications
-from services import notifications
+from services import notifications as email_notifications
+from routes import calendar, booking_editor, notifications as api_notifications
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -68,7 +68,7 @@ app = FastAPI()
 app.include_router(meta_router)
 app.include_router(calendar.router)
 app.include_router(booking_editor.router)
-app.include_router(notifications.router)
+app.include_router(api_notifications.router)
 
 app.add_middleware(
     CORSMiddleware,
