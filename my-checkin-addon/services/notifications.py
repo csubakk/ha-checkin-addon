@@ -31,10 +31,15 @@ def send_email(recipient: str, subject: str, body: str, message_id: str = None):
     msg["Message-ID"] = message_id or make_msgid()
     msg.attach(MIMEText(body, "plain"))
 
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        server.starttls(context=context)
-        server.login(SMTP_USER, SMTP_PASSWORD)
-        server.sendmail(SENDER_EMAIL, recipient, msg.as_string())
+    try:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls(context=context)
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.sendmail(SENDER_EMAIL, recipient, msg.as_string())
+        return True
+    except Exception as e:
+        print(f"[HIBA] Email küldés sikertelen: {recipient} – {e}")
+        return False
 
 
 def send_guest_email(booking_id: int):
