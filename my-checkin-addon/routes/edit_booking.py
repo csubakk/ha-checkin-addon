@@ -1,15 +1,13 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from jinja2 import Template
 import sqlite3
 from datetime import datetime
-import os
 
 router = APIRouter()
 
 DB_PATH = "/config/guestbook.db"
-templates = Jinja2Templates(directory="templates") 
+templates = Jinja2Templates(directory="templates")
 
 def get_existing_booking(house_id: str, date: str):
     conn = sqlite3.connect(DB_PATH)
@@ -18,7 +16,7 @@ def get_existing_booking(house_id: str, date: str):
     cursor.execute("""
         SELECT * FROM guest_bookings
         WHERE guest_house_id = ?
-          AND date(?) BETWEEN date(checkin_time) AND date(checkout_time)
+          AND date(?) BETWEEN date(checkin_time) AND date(checkout_time, '-1 day')
     """, (house_id, date))
     existing = cursor.fetchone()
     conn.close()
@@ -29,7 +27,7 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
     data = {
         "guest_first_name": "",
         "guest_last_name": "",
-        "guest_count": "",
+        "guest_count": "1",
         "checkin_time": date,
         "checkout_time": date,
         "notes": "",
@@ -45,49 +43,16 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
                 data[key] = existing[key] or data[key]
         data["id"] = existing["id"]
 
-    html = f"""
-    <html>
-    <head><meta charset='utf-8'><title>Foglalás szerkesztése</title></head>
-    <body>
-        <h2>Foglalás szerkesztése</h2>
-        {'<p style="color:red;">' + error + '</p>' if error else ''}
-        <form method='post' action='/save_booking'>
-            <input type='hidden' name='id' value='{data["id"]}'>
-            <label>Vendég neve:</label>
-            <input type='text' name='guest_first_name' value='{data["guest_first_name"]}' required>
-            <input type='text' name='guest_last_name' value='{data["guest_last_name"]}' required><br>
-
-            <label>Érkezés:</label>
-            <input type='date' name='checkin_time' value='{data["checkin_time"]}' required>
-            <label>Távozás:</label>
-            <input type='date' name='checkout_time' value='{data["checkout_time"]}' required><br>
-
-            <label>Vendégek száma:</label>
-            <input type='number' name='guest_count' value='{data["guest_count"]}' min='1'><br>
-
-            <label>Ház/szoba azonosító:</label>
-            <select name='guest_house_id'>
-                <option value='1' {'selected' if data["guest_house_id"] == '1' else ''}>1</option>
-                <option value='2' {'selected' if data["guest_house_id"] == '2' else ''}>2</option>
-            </select><br>
-
-            <label>Megjegyzés:</label>
-            <input type='text' name='notes' value='{data["notes"]}'><br>
-
-            <label>Rögzítette:</label>
-            <select name='created_by'>
-                <option value='Anna' {'selected' if data["created_by"] == 'Anna' else ''}>Anna</option>
-                <option value='Csaba' {'selected' if data["created_by"] == 'Csaba' else ''}>Csaba</option>
-                <option value='Levente' {'selected' if data["created_by"] == 'Levente' else ''}>Levente</option>
-                <option value='Zsolt' {'selected' if data["created_by"] == 'Zsolt' else ''}>Zsolt</option>
-            </select><br><br>
-
-            {'<button type="submit">Módosítás</button><a href="/calendar">Vissza</a>' if data['id'] else '<button type="submit">Bevitel</button>'}
-        </form>
-    </body>
-    </html>
-    """
-    return HTMLResponse(content=html)
+    return templates.TemplateResponse("edit_booking.html", {
+        "request": request,
+        "guest": data,
+        "existing": bool(data['id']),
+        "original_id": data['id'],
+        "mode": "Módosítás" if data['id'] else "Új foglalás",
+        "button": "Módosítás" if data['id'] else "Bevitel",
+        "guest_house_ids": ["1", "2"],
+        "error": error
+    })
 
 @router.post("/save_booking")
 async def save_booking(
@@ -111,8 +76,10 @@ async def save_booking(
         SELECT * FROM guest_bookings
         WHERE guest_house_id = ?
           AND id != ?
-          AND date(checkin_time) <= date(?)
-          AND date(?) < date(checkout_time)
+          AND NOT (
+            date(?) >= date(checkout_time) OR
+            date(?) < date(checkin_time)
+          )
     """, (guest_house_id, id or 0, checkin_time, checkout_time))
     existing = cursor.fetchone()
     if existing:
