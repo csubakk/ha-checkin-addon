@@ -97,6 +97,7 @@ async def delete_booking(booking_id: int = Form(...)):
     conn.close()
     return RedirectResponse(url="/calendar", status_code=303)
 
+
 @router.post("/save_booking")
 async def save_booking(
     request: Request,
@@ -123,6 +124,41 @@ async def save_booking(
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+
+    # 🔍 Email validáció (kötelező mező + "@" ellenőrzés)
+    if not guest_email or "@" not in guest_email:
+        conn.close()
+        guest_data = {
+            "guest_first_name": guest_first_name,
+            "guest_last_name": guest_last_name,
+            "birth_date": birth_date,
+            "birth_place": birth_place,
+            "nationality": nationality,
+            "document_type": document_type,
+            "document_number": document_number,
+            "cnp": cnp,
+            "address": address,
+            "travel_purpose": travel_purpose,
+            "guest_email": guest_email,
+            "guest_phone": guest_phone,
+            "guest_count": guest_count,
+            "notes": notes,
+            "guest_house_id": guest_house_id,
+            "checkin_time": checkin_time,
+            "checkout_time": checkout_time,
+            "created_by": created_by,
+            "id": original_id
+        }
+        return templates.TemplateResponse("edit_booking.html", {
+            "request": request,
+            "guest": guest_data,
+            "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
+            "button": "Mentés" if original_id else "Létrehozás",
+            "guest_house_ids": ["1", "2"],
+            "original_id": original_id,
+            "existing": bool(original_id),
+            "error": "Hibás vagy hiányzó email cím!"
+        })
 
     try:
         checkin_dt = datetime.fromisoformat(checkin_time)
