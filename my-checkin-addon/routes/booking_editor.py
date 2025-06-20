@@ -8,6 +8,7 @@ router = APIRouter()
 DB_PATH = "/config/guestbook.db"
 templates = Jinja2Templates(directory="/app/templates")
 
+
 def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -21,6 +22,7 @@ def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else None
+
 
 @router.get("/edit_booking", response_class=HTMLResponse)
 async def edit_booking(request: Request, date: str, house_id: str, error: str = ""):
@@ -85,11 +87,18 @@ async def save_booking(
     checkin_time: str = Form(...),
     checkout_time: str = Form(...),
     created_by: str = Form(""),
-    original_id: str = Form("")
+    original_id: str = Form(""),
+    delete: str = Form(None)
 ):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+
+    if delete and original_id:
+        cursor.execute("DELETE FROM guest_bookings WHERE id = ?", (original_id,))
+        conn.commit()
+        conn.close()
+        return RedirectResponse(url="/calendar?msg=torolve", status_code=303)
 
     if original_id:
         cursor.execute("SELECT * FROM guest_bookings WHERE id = ?", (original_id,))
@@ -153,4 +162,4 @@ async def save_booking(
     conn.commit()
     conn.close()
 
-    return RedirectResponse(url="/calendar", status_code=303)
+    return RedirectResponse(url="/calendar?msg=mentve", status_code=303)
