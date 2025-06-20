@@ -147,6 +147,7 @@ async def save_booking(
             conflict_days.append(d_str)
 
     if conflict_days:
+        formatted_days = [datetime.fromisoformat(d).strftime('%Y-%m-%d') for d in conflict_days]
         conn.close()
         guest_data = {
             "guest_first_name": guest_first_name,
@@ -178,7 +179,7 @@ async def save_booking(
             "guest_house_ids": ["1", "2"],
             "original_id": original_id,
             "existing": bool(original_id),
-            "error": f"Ütközés: már van foglalás ezeken a napokon: {', '.join(conflict_days)}"
+            "error": f"Ütközés: már van foglalás ezeken a napokon: {', '.join(formatted_days)}"
         })
 
     if original_id:
