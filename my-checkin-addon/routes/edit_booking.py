@@ -1,8 +1,6 @@
-  # routes/edit_booking.py
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 import sqlite3
-from datetime import datetime
 
 router = APIRouter()
 DB_PATH = "/config/guestbook.db"
@@ -21,7 +19,6 @@ def edit_booking(request: Request, date: str, house: int = 1):
     booking = cursor.fetchone()
     conn.close()
 
-    # Adatok előkészítése
     data = {
         "guest_first_name": "",
         "guest_last_name": "",
