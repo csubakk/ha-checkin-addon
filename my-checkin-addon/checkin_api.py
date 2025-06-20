@@ -6,6 +6,7 @@ import yaml
 import requests
 from fastapi import FastAPI, HTTPException, Form, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
 import uvicorn
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import A4
