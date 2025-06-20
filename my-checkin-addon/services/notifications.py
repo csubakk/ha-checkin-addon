@@ -82,6 +82,7 @@ Jóska Pista
     return True
 
 def send_checkin_link(booking_id: int):
+    from datetime import datetime, timedelta
     cfg = get_config()
     conn = sqlite3.connect(cfg["DB_PATH"])
     conn.row_factory = sqlite3.Row
@@ -91,6 +92,12 @@ def send_checkin_link(booking_id: int):
 
     if not row:
         print(f"Booking not found: {booking_id}")
+        return False
+
+    # Csak akkor küldjünk check-in linket, ha holnap az érkezés
+    checkin_date = datetime.strptime(row["checkin_time"], "%Y-%m-%d %H:%M:%S").date()
+    if checkin_date != (datetime.now().date() + timedelta(days=1)):
+        print(f"[INFO] Nem küldünk check-in linket, mert az érkezés nem holnap: {checkin_date}")
         return False
 
     recipient = row["guest_email"]
