@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import sqlite3
 from datetime import datetime, timedelta
+import uuid
 
 router = APIRouter()
 
@@ -96,7 +97,6 @@ async def delete_booking(booking_id: int = Form(...)):
     conn.close()
     return RedirectResponse(url="/calendar", status_code=303)
 
-
 @router.post("/save_booking")
 async def save_booking(
     request: Request,
@@ -151,12 +151,10 @@ async def save_booking(
             "error": "Távozás nem lehet az érkezés előtt vagy azonos nap."
         })
 
-    # ütközés ellenőrzés, napokra lebontva
     conflict_days = []
     for i in range((checkout_dt - checkin_dt).days):
         d = checkin_dt + timedelta(days=i)
         d_str = d.isoformat()
-
         if original_id:
             cursor.execute("""
                 SELECT id FROM guest_bookings
@@ -212,6 +210,9 @@ async def save_booking(
             "error": f"Ütközés: már van foglalás ezeken a napokon: {', '.join(formatted_days)}"
         })
 
+    now = datetime.now().isoformat(timespec='seconds')
+    access_token = str(uuid.uuid4())
+
     if original_id:
         cursor.execute("""
             UPDATE guest_bookings SET
@@ -234,13 +235,15 @@ async def save_booking(
                 nationality, document_type, document_number, cnp,
                 address, travel_purpose, guest_email, guest_phone,
                 guest_count, notes, guest_house_id,
-                checkin_time, checkout_time, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                checkin_time, checkout_time, created_by,
+                created_at, updated_at, access_token
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             guest_first_name, guest_last_name, birth_date, birth_place, nationality,
             document_type, document_number, cnp, address, travel_purpose,
             guest_email, guest_phone, guest_count, notes, guest_house_id,
-            checkin_time, checkout_time, created_by
+            checkin_time, checkout_time, created_by,
+            now, now, access_token
         ))
 
     conn.commit()
