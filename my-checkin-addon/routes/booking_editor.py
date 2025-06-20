@@ -287,8 +287,8 @@ async def save_booking(
             now, now, access_token
         ))
         booking_id = cursor.lastrowid
-        with open("/config/debug.log", "a") as f:
-            f.write(f"[INFO] Új foglalás ID: {booking_id} – {guest_first_name} {guest_last_name}\n")
+ #       with open("/config/debug.log", "a") as f:
+ #           f.write(f"[INFO] Új foglalás ID: {booking_id} – {guest_first_name} {guest_last_name}\n")
 
     conn.commit()
     conn.close()
