@@ -67,6 +67,23 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "error": error,
     })
 
+@router.get("/confirm_delete", response_class=HTMLResponse)
+async def confirm_delete(request: Request, booking_id: int):
+    return templates.TemplateResponse("confirm_delete.html", {
+        "request": request,
+        "booking_id": booking_id
+    })
+
+@router.post("/delete_booking")
+async def delete_booking(booking_id: int = Form(...)):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM guest_bookings WHERE id = ?", (booking_id,))
+    conn.commit()
+    conn.close()
+    return RedirectResponse(url="/calendar", status_code=303)
+
+
 @router.post("/save_booking")
 async def save_booking(
     request: Request,
