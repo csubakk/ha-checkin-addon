@@ -153,4 +153,4 @@ async def save_booking(
     conn.commit()
     conn.close()
 
-    return RedirectResponse(url=f"/edit_booking?date={checkin_time}&house_id={guest_house_id}", status_code=303)
+    return RedirectResponse(url="/calendar", status_code=303)
