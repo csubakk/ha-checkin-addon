@@ -21,6 +21,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 🔤 Betűtípus bemásolása
 COPY fonts/DejaVuSans.ttf /app/fonts/DejaVuSans.ttf
 
+# 📁 Sablonok bemásolása a HA alatt elérhető /config alá
+COPY ./templates /config/templates
 
 # 🧠 Forráskód bemásolása (végül)
 COPY . .
