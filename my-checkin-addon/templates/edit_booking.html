@@ -44,7 +44,7 @@
         </label>
         <button type="submit">{{ button }}</button>
         {% if existing %}
-              <a href="/confirm_delete?booking_id={{ original_id }}" style="margin-left: 1em; color: red; font-weight: bold;">Törlés</a>
+        <a href="/confirm_delete?booking_id={{ original_id }}" style="background-color: red; color: white; padding: 0.5em 1em; border-radius: 4px; border: 1px solid red; text-decoration: none; margin-left: 1em;">Törlés</a>
         {% endif %}
     </form>
 </body>
