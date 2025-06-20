@@ -6,7 +6,7 @@ import sqlite3
 router = APIRouter()
 
 DB_PATH = "/config/guestbook.db"
-templates = Jinja2Templates(directory="/config/templates")
+templates = Jinja2Templates(directory="/app/templates")
 
 def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     conn = sqlite3.connect(DB_PATH)
