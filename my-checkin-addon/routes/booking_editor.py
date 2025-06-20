@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form, HTTPException
+from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import sqlite3
@@ -24,12 +24,12 @@ def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     return dict(row) if row else None
 
 @router.get("/edit_booking", response_class=HTMLResponse)
-async def edit_booking(request: Request, date: str, house_id: str, error: str = ""):
+async def edit_booking(request: Request, date: str, house_id: str, error: str = "", guest: dict = None):
     booking = get_booking_by_date_and_house(date, house_id)
     checkin_dt = datetime.fromisoformat(date)
     default_checkout = (checkin_dt + timedelta(days=1)).date().isoformat()
 
-    data = {
+    data = guest or {
         "guest_first_name": "",
         "guest_last_name": "",
         "birth_date": "",
@@ -50,7 +50,7 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "created_by": "Csaba",
         "id": ""
     }
-    if booking:
+    if booking and not guest:
         for key in data:
             if key in booking:
                 data[key] = booking[key] or data[key]
@@ -94,53 +94,55 @@ async def save_booking(
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
+    form_data = {
+        "guest_first_name": guest_first_name,
+        "guest_last_name": guest_last_name,
+        "birth_date": birth_date,
+        "birth_place": birth_place,
+        "nationality": nationality,
+        "document_type": document_type,
+        "document_number": document_number,
+        "cnp": cnp,
+        "address": address,
+        "travel_purpose": travel_purpose,
+        "guest_email": guest_email,
+        "guest_phone": guest_phone,
+        "guest_count": guest_count,
+        "notes": notes,
+        "guest_house_id": guest_house_id,
+        "checkin_time": checkin_time,
+        "checkout_time": checkout_time,
+        "created_by": created_by,
+        "id": original_id
+    }
+
     try:
         checkin_dt = datetime.fromisoformat(checkin_time)
         checkout_dt = datetime.fromisoformat(checkout_time)
     except ValueError:
-        return templates.TemplateResponse("edit_booking.html", {
-            "request": request,
-            "guest": request.form(),
-            "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
-            "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": ["1", "2"],
-            "original_id": original_id,
-            "existing": bool(original_id),
-            "error": "Dátum formátuma hibás."
-        })
+        return await edit_booking(request, checkin_time, guest_house_id, error="Dátum formátuma hibás.", guest=form_data)
 
     if checkout_dt <= checkin_dt:
-        return templates.TemplateResponse("edit_booking.html", {
-            "request": request,
-            "guest": request.form(),
-            "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
-            "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": ["1", "2"],
-            "original_id": original_id,
-            "existing": bool(original_id),
-            "error": "Távozás nem lehet az érkezés előtt vagy azonos nap."
-        })
+        return await edit_booking(request, checkin_time, guest_house_id, error="Távozás nem lehet az érkezés előtt vagy azonos nap.", guest=form_data)
 
-    # ütközés ellenőrzés
     cursor.execute("""
         SELECT * FROM guest_bookings
         WHERE guest_house_id = ?
           AND id != ?
           AND NOT (date(checkout_time) <= date(?) OR date(checkin_time) >= date(?))
     """, (guest_house_id, original_id or 0, checkin_time, checkout_time))
-    conflict = cursor.fetchone()
-    if conflict:
+    conflicts = cursor.fetchall()
+    if conflicts:
+        conflict_days = []
+        for row in conflicts:
+            existing_start = datetime.fromisoformat(row["checkin_time"]).date()
+            existing_end = datetime.fromisoformat(row["checkout_time"]).date()
+            for d in range((checkout_dt - checkin_dt).days):
+                day = checkin_dt + timedelta(days=d)
+                if existing_start <= day < existing_end:
+                    conflict_days.append(day.isoformat())
         conn.close()
-        return templates.TemplateResponse("edit_booking.html", {
-            "request": request,
-            "guest": request.form(),
-            "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
-            "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": ["1", "2"],
-            "original_id": original_id,
-            "existing": bool(original_id),
-            "error": "Ütközés: már van foglalás ebben az időszakban."
-        })
+        return await edit_booking(request, checkin_time, guest_house_id, error=f"Ütközés: az alábbi napokon már van foglalás: {', '.join(conflict_days)}", guest=form_data)
 
     if original_id:
         cursor.execute("""
