@@ -68,10 +68,20 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
     })
 
 @router.get("/confirm_delete", response_class=HTMLResponse)
-async def confirm_delete(request: Request, booking_id: int):
+async def confirm_delete(request: Request, id: int):  # ← itt legyen id
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM guest_bookings WHERE id = ?", (id,))
+    booking = cursor.fetchone()
+    conn.close()
+
+    if not booking:
+        return RedirectResponse(url="/calendar", status_code=303)
+
     return templates.TemplateResponse("confirm_delete.html", {
         "request": request,
-        "booking_id": booking_id
+        "booking": booking
     })
 
 @router.post("/delete_booking")
