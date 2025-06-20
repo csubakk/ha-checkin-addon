@@ -286,8 +286,8 @@ async def save_booking(
     conn.commit()
     conn.close()
     
-    if not original_id:
-        notification.send_guest_email(booking_id)
-        notification.send_checkin_link(booking_id)
+#    if not original_id:
+#        notification.send_guest_email(booking_id)
+#        notification.send_checkin_link(booking_id)
     
     return RedirectResponse(url=f"/calendar", status_code=303)
