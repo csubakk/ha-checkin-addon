@@ -293,7 +293,10 @@ async def save_booking(
     conn.close()
 
     if not original_id:
-        notifications.send_guest_email(booking_id)
-        notifications.send_checkin_link(booking_id)
-
+        try:
+            notification.send_guest_email(booking_id)
+            notification.send_checkin_link(booking_id)
+        except Exception as e:
+            print(f"[HIBA] Emailküldés hiba: {e}")
+    
     return RedirectResponse(url=f"/calendar", status_code=303)
