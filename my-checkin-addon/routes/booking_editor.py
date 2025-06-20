@@ -287,7 +287,8 @@ async def save_booking(
             now, now, access_token
         ))
         booking_id = cursor.lastrowid
-        print(f"[INFO] Új foglalás ID: {booking_id} – {guest_first_name} {guest_last_name}")
+        with open("/config/debug.log", "a") as f:
+            f.write(f"[INFO] Új foglalás ID: {booking_id} – {guest_first_name} {guest_last_name}\n")
 
     conn.commit()
     conn.close()
@@ -297,6 +298,7 @@ async def save_booking(
             notification.send_guest_email(booking_id)
             notification.send_checkin_link(booking_id)
         except Exception as e:
-            print(f"[HIBA] Emailküldés hiba: {e}")
+            with open("/config/debug.log", "a") as f:
+                f.write(f"[HIBA] Emailküldés hiba: {str(e)}\n")
     
     return RedirectResponse(url=f"/calendar", status_code=303)
