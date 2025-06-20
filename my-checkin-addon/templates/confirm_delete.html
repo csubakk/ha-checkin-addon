@@ -1,6 +1,12 @@
 <h2>Biztosan törlöd ezt a foglalást?</h2>
+<p>
+  Vendég: {{ booking.guest_first_name }} {{ booking.guest_last_name }}<br>
+  Érkezés: {{ booking.checkin_time }}<br>
+  Távozás: {{ booking.checkout_time }}
+</p>
+
 <form method="post" action="/delete_booking">
-    <input type="hidden" name="booking_id" value="{{ booking_id }}">
-    <button type="submit">Törlés megerősítése</button>
-    <a href="/calendar"><button type="button">Mégsem</button></a>
+  <input type="hidden" name="booking_id" value="{{ booking.id }}">
+  <button type="submit" class="btn btn-danger">Igen, törlöm</button>
+  <a href="/calendar" class="btn btn-secondary">Mégse</a>
 </form>
