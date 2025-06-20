@@ -245,8 +245,13 @@ async def save_booking(
             checkin_time, checkout_time, created_by,
             now, now, access_token
         ))
-
+    
+    booking_id = cursor.lastrowid
     conn.commit()
     conn.close()
-
+    
+    if not original_id:
+        notification.send_guest_email(booking_id)
+        notification.send_checkin_link(booking_id)
+    
     return RedirectResponse(url=f"/calendar", status_code=303)
