@@ -1,6 +1,8 @@
+# routes/edit_booking.py
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 import sqlite3
+from datetime import datetime
 
 router = APIRouter()
 DB_PATH = "/config/guestbook.db"
@@ -35,12 +37,11 @@ def edit_booking(request: Request, date: str, house: int = 1):
         for key in data:
             if key in booking.keys():
                 data[key] = booking[key] or data[key]
-        data["id"] = booking["id"]  
 
     is_edit = bool(booking)
     mode = "Módosítás" if is_edit else "Új foglalás"
     button = "Módosít" if is_edit else "Rögzít"
-    delete_button = "<button style='background:red;color:white'>Törlés</button>" if is_edit else ""
+    delete_button = "<button name='delete' value='1' style='background:red;color:white'>Törlés</button>" if is_edit else ""
 
     html = f"""
     <html lang='hu'><head><meta charset='UTF-8'>
@@ -54,8 +55,7 @@ def edit_booking(request: Request, date: str, house: int = 1):
     <body>
     <h2>{mode}</h2>
     <form action='/save_booking' method='post'>
-        <input type='hidden' name='original_date' value='{date}'>
-        <input type='hidden' name='is_edit' value={'1' if is_edit else '0'}>
+        <input type='hidden' name='existing' value='1' {"disabled" if not is_edit else ""}>
         <label>Vezetéknév <input name='guest_last_name' value='{data['guest_last_name']}'></label>
         <label>Keresztnév <input name='guest_first_name' value='{data['guest_first_name']}'></label>
         <label>Email <input name='guest_email' value='{data['guest_email']}'></label>
