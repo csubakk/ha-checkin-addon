@@ -35,6 +35,7 @@ def edit_booking(request: Request, date: str, house: int = 1):
         for key in data:
             if key in booking.keys():
                 data[key] = booking[key] or data[key]
+        data["id"] = booking["id"]  
 
     is_edit = bool(booking)
     mode = "Módosítás" if is_edit else "Új foglalás"
