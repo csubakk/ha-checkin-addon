@@ -68,20 +68,23 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
     })
 
 @router.get("/confirm_delete", response_class=HTMLResponse)
-async def confirm_delete(request: Request, id: int):  # ← itt legyen id
+async def confirm_delete(request: Request, booking_id: int):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM guest_bookings WHERE id = ?", (id,))
+    cursor.execute("SELECT * FROM guest_bookings WHERE id = ?", (booking_id,))
     booking = cursor.fetchone()
     conn.close()
 
     if not booking:
-        return RedirectResponse(url="/calendar", status_code=303)
+        raise HTTPException(status_code=404, detail="Foglalás nem található.")
 
     return templates.TemplateResponse("confirm_delete.html", {
         "request": request,
-        "booking": booking
+        "booking_id": booking_id,
+        "guest_name": f"{booking['guest_first_name']} {booking['guest_last_name']}",
+        "checkin": booking["checkin_time"],
+        "checkout": booking["checkout_time"]
     })
 
 @router.post("/delete_booking")
