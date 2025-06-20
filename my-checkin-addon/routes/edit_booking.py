@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 from jinja2 import Template
 import sqlite3
 from datetime import datetime
@@ -8,6 +9,7 @@ import os
 router = APIRouter()
 
 DB_PATH = "/config/guestbook.db"
+templates = Jinja2Templates(directory="templates") 
 
 def get_existing_booking(house_id: str, date: str):
     conn = sqlite3.connect(DB_PATH)
