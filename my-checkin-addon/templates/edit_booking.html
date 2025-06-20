@@ -44,7 +44,7 @@
         </label>
         <button type="submit">{{ button }}</button>
         {% if existing %}
-        <button type="submit" name="delete" value="1" style="background:red;color:white">Törlés</button>
+              <a href="/confirm_delete?id={{ original_id }}" class="btn btn-danger">Törlés</a>
         {% endif %}
     </form>
 </body>
