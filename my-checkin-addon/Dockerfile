@@ -28,4 +28,4 @@ COPY templates /app/templates
 COPY . .
 
 # 🚀 Konténer indulás
-CMD ["uvicorn", "checkin_api:app", "--host", "0.0.0.0", "--port", "8124"]
+CMD ["uvicorn", "checkin_api:app", "--host", "0.0.0.0", "--port", "8124", "--log-level", "info", "--access-log"]
