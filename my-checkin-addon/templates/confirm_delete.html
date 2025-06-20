@@ -1,0 +1,6 @@
+<h2>Biztosan törlöd ezt a foglalást?</h2>
+<form method="post" action="/delete_booking">
+    <input type="hidden" name="booking_id" value="{{ booking_id }}">
+    <button type="submit">Törlés megerősítése</button>
+    <a href="/calendar"><button type="button">Mégsem</button></a>
+</form>
