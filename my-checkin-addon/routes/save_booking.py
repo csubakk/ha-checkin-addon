@@ -75,11 +75,11 @@ async def save_booking(
     checkin_time: str = Form(...),
     checkout_time: str = Form(...),
     created_by: str = Form(""),
-    booking_id: str = Form("")
+    id: str = Form("")  # <-- EZ AZ!
 ):
     conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
     conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
 
     if booking_id:
         # update
