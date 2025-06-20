@@ -54,7 +54,7 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
 
     return templates.TemplateResponse("edit_booking.html", {
         "request": request,
-        "data": data,
+        "guest": data,
         "mode": "Foglalás szerkesztése" if booking else "Új foglalás",
         "button": "Mentés" if booking else "Létrehozás",
         "guest_house_ids": ["1", "2"],
