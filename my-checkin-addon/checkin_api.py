@@ -13,6 +13,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor
 from checkin_meta_api import router as meta_router
 from routes import calendar, booking_editor
+from services import notification
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
