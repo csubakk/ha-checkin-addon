@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Form, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
 import sqlite3
-from datetime import datetime
 
 router = APIRouter()
 DB_PATH = "/config/guestbook.db"
@@ -31,6 +30,24 @@ def save_booking(
         """, (guest_house_id, checkin_time))
 
     elif existing:
+        # Átfedés ellenőrzése más foglalással
+        cursor.execute("""
+            SELECT COUNT(*) FROM guest_bookings
+            WHERE guest_house_id = ?
+              AND checkin_time <= ? AND checkout_time >= ?
+              AND NOT (checkin_time = ? AND guest_house_id = ?)
+        """, (
+            guest_house_id, checkout_time, checkin_time,
+            checkin_time, guest_house_id
+        ))
+        conflict = cursor.fetchone()[0]
+        if conflict > 0:
+            conn.close()
+            return HTMLResponse(
+                content=f"<html><body><h2>HIBA</h2><p>Ez az időszak ({checkin_time} – {checkout_time}) átfed másik foglalással.</p><a href='/calendar'>Vissza</a></body></html>",
+                status_code=400
+            )
+
         cursor.execute("""
             UPDATE guest_bookings
             SET guest_first_name = ?, guest_last_name = ?, guest_email = ?, guest_phone = ?,
@@ -43,6 +60,19 @@ def save_booking(
         ))
 
     else:
+        # Ellenőrzés új foglalásnál
+        cursor.execute("""
+            SELECT COUNT(*) FROM guest_bookings
+            WHERE guest_house_id = ? AND checkin_time <= ? AND checkout_time >= ?
+        """, (guest_house_id, checkin_time, checkin_time))
+        exists = cursor.fetchone()[0]
+        if exists > 0:
+            conn.close()
+            return HTMLResponse(
+                content=f"<html><body><h2>HIBA</h2><p>Erre a napra ({checkin_time}) már van foglalás ebben a házban.</p><a href='/calendar'>Vissza</a></body></html>",
+                status_code=400
+            )
+
         cursor.execute("""
             INSERT INTO guest_bookings (
                 guest_first_name, guest_last_name, guest_email, guest_phone,
