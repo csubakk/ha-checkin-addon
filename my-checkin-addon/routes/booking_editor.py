@@ -295,8 +295,8 @@ async def save_booking(
 
     if not original_id:
         try:
-            notification.send_guest_email(booking_id)
-            notification.send_checkin_link(booking_id)
+            notifications.send_guest_email(booking_id)
+            notifications.send_checkin_link(booking_id)
         except Exception as e:
             with open("/config/debug.log", "a") as f:
                 f.write(f"[HIBA] Emailküldés hiba: {str(e)}\n")
