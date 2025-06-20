@@ -287,6 +287,7 @@ async def save_booking(
             now, now, access_token
         ))
         booking_id = cursor.lastrowid
+        print(f"[INFO] Új foglalás ID: {booking_id} – {guest_first_name} {guest_last_name}")
 
     conn.commit()
     conn.close()
