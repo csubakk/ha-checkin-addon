@@ -12,7 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import HexColor
 from checkin_meta_api import router as meta_router
-from routes import calendar
+from routes import calendar, edit_booking, save_booking
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -66,6 +66,8 @@ OWNER_EMAIL = os.getenv("OWNER_EMAIL")
 app = FastAPI()
 app.include_router(meta_router)
 app.include_router(calendar.router)
+app.include_router(edit_booking.router)
+app.include_router(save_booking.router)
 
 app.add_middleware(
     CORSMiddleware,
