@@ -1,12 +1,38 @@
-<h2>Biztosan törlöd ezt a foglalást?</h2>
-<p>
-  Vendég: {{ booking.guest_first_name }} {{ booking.guest_last_name }}<br>
-  Érkezés: {{ booking.checkin_time }}<br>
-  Távozás: {{ booking.checkout_time }}
-</p>
+<!-- /config/templates/confirm_delete.html -->
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Foglalás törlése</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        .warning { color: red; font-weight: bold; font-size: 1.2em; }
+        button, a {
+            margin-top: 1em;
+            padding: 0.5em 1em;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+        }
+        .cancel-link {
+            margin-left: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="warning">Biztosan törlöd ezt a foglalást?</div>
+    <p><strong>Vendég:</strong> {{ guest_name }}</p>
+    <p><strong>Érkezés:</strong> {{ checkin }}</p>
+    <p><strong>Távozás:</strong> {{ checkout }}</p>
 
-<form method="post" action="/delete_booking">
-  <input type="hidden" name="booking_id" value="{{ booking.id }}">
-  <button type="submit" class="btn btn-danger">Igen, törlöm</button>
-  <a href="/calendar" class="btn btn-secondary">Mégse</a>
-</form>
+    <form action="/delete_booking" method="post">
+        <input type="hidden" name="booking_id" value="{{ booking_id }}">
+        <button type="submit" class="delete-btn">Igen, törlöm</button>
+        <a href="/calendar" class="cancel-link">Mégse</a>
+    </form>
+</body>
+</html>
