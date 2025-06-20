@@ -69,7 +69,7 @@ def calendar_page(request: Request):
         try:
             checkin = datetime.fromisoformat(row["checkin_time"]).date()
             checkout = datetime.fromisoformat(row["checkout_time"]).date()
-            for d in range((checkout - checkin).days + 1):
+            for d in range((checkout - checkin).days):  # kizárólag az ottalvós napokra
                 day = checkin + timedelta(days=d)
                 date_map[guest_house][day] = name
         except:
@@ -160,7 +160,7 @@ def calendar_page(request: Request):
             <a href=\"#\">⬅️ Vissza</a>
             <a href=\"#\">Előre ➡️</a>
         </div>
-        
+
         <table>
             <thead>
                 <tr>{th_cells}</tr>
