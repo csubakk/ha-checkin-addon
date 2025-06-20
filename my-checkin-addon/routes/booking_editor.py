@@ -4,11 +4,15 @@ from fastapi.templating import Jinja2Templates
 import sqlite3
 from datetime import datetime, timedelta
 import uuid
+import re
+from services import notifications
 
 router = APIRouter()
 
 DB_PATH = "/config/guestbook.db"
 templates = Jinja2Templates(directory="/app/templates")
+EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
+HOUSE_IDS = ["1", "2"]
 
 def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     conn = sqlite3.connect(DB_PATH)
@@ -62,7 +66,7 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "guest": data,
         "mode": "Foglalás szerkesztése" if booking else "Új foglalás",
         "button": "Mentés" if booking else "Létrehozás",
-        "guest_house_ids": ["1", "2"],
+        "guest_house_ids": HOUSE_IDS,
         "original_id": data["id"],
         "existing": bool(data["id"]),
         "error": error,
@@ -97,7 +101,6 @@ async def delete_booking(booking_id: int = Form(...)):
     conn.close()
     return RedirectResponse(url="/calendar", status_code=303)
 
-
 @router.post("/save_booking")
 async def save_booking(
     request: Request,
@@ -125,8 +128,7 @@ async def save_booking(
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # 🔍 Email validáció (kötelező mező + "@" ellenőrzés)
-    if not guest_email or "@" not in guest_email:
+    if not guest_email or not EMAIL_REGEX.match(guest_email):
         conn.close()
         guest_data = {
             "guest_first_name": guest_first_name,
@@ -154,7 +156,7 @@ async def save_booking(
             "guest": guest_data,
             "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
             "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": ["1", "2"],
+            "guest_house_ids": HOUSE_IDS,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": "Hibás vagy hiányzó email cím!"
@@ -164,24 +166,26 @@ async def save_booking(
         checkin_dt = datetime.fromisoformat(checkin_time)
         checkout_dt = datetime.fromisoformat(checkout_time)
     except ValueError:
+        form_data = await request.form()
         return templates.TemplateResponse("edit_booking.html", {
             "request": request,
-            "guest": request.form(),
+            "guest": form_data,
             "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
             "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": ["1", "2"],
+            "guest_house_ids": HOUSE_IDS,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": "Dátum formátuma hibás."
         })
 
     if checkout_dt <= checkin_dt:
+        form_data = await request.form()
         return templates.TemplateResponse("edit_booking.html", {
             "request": request,
-            "guest": request.form(),
+            "guest": form_data,
             "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
             "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": ["1", "2"],
+            "guest_house_ids": HOUSE_IDS,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": "Távozás nem lehet az érkezés előtt vagy azonos nap."
@@ -240,14 +244,14 @@ async def save_booking(
             "guest": guest_data,
             "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
             "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": ["1", "2"],
+            "guest_house_ids": HOUSE_IDS,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": f"Ütközés: már van foglalás ezeken a napokon: {', '.join(formatted_days)}"
         })
 
     now = datetime.now().isoformat(timespec='seconds')
-    access_token = str(uuid.uuid4())
+    access_token = str(uuid.uuid4()) if not original_id else None
 
     if original_id:
         cursor.execute("""
@@ -264,6 +268,7 @@ async def save_booking(
             guest_email, guest_phone, guest_count, notes, guest_house_id,
             checkin_time, checkout_time, created_by, original_id
         ))
+        booking_id = original_id
     else:
         cursor.execute("""
             INSERT INTO guest_bookings (
@@ -281,13 +286,13 @@ async def save_booking(
             checkin_time, checkout_time, created_by,
             now, now, access_token
         ))
-    
-    booking_id = cursor.lastrowid
+        booking_id = cursor.lastrowid
+
     conn.commit()
     conn.close()
-    
+
     if not original_id:
-        notification.send_guest_email(booking_id)
-        notification.send_checkin_link(booking_id)
-    
+        notifications.send_guest_email(booking_id)
+        notifications.send_checkin_link(booking_id)
+
     return RedirectResponse(url=f"/calendar", status_code=303)
