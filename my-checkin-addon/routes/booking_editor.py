@@ -55,7 +55,12 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
     return templates.TemplateResponse("edit_booking.html", {
         "request": request,
         "data": data,
-        "error": error
+        "mode": "Foglalás szerkesztése" if booking else "Új foglalás",
+        "button": "Mentés" if booking else "Létrehozás",
+        "guest_house_ids": ["1", "2"],
+        "original_id": data["id"],
+        "existing": bool(data["id"]),
+        "error": error,
     })
 
 
@@ -80,14 +85,14 @@ async def save_booking(
     checkin_time: str = Form(...),
     checkout_time: str = Form(...),
     created_by: str = Form(""),
-    id: str = Form("")  # ID lehet új vagy meglévő
+    original_id: str = Form("")
 ):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    if id:
-        cursor.execute("SELECT * FROM guest_bookings WHERE id = ?", (id,))
+    if original_id:
+        cursor.execute("SELECT * FROM guest_bookings WHERE id = ?", (original_id,))
         existing = cursor.fetchone()
         if not existing:
             conn.close()
@@ -98,7 +103,7 @@ async def save_booking(
             WHERE guest_house_id = ?
               AND id != ?
               AND NOT (date(checkout_time) <= date(?) OR date(checkin_time) >= date(?))
-        """, (guest_house_id, id, checkin_time, checkout_time))
+        """, (guest_house_id, original_id, checkin_time, checkout_time))
         conflict = cursor.fetchone()
         if conflict:
             conn.close()
@@ -116,7 +121,7 @@ async def save_booking(
             guest_first_name, guest_last_name, birth_date, birth_place, nationality,
             document_type, document_number, cnp, address, travel_purpose,
             guest_email, guest_phone, guest_count, notes, guest_house_id,
-            checkin_time, checkout_time, created_by, id
+            checkin_time, checkout_time, created_by, original_id
         ))
 
     else:
