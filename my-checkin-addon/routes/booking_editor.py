@@ -23,7 +23,7 @@ HOUSE_IDS = ["1", "2"]
 
 def get_input_select_options(entity_id: str):
     url = f"{HA_URL}/states/{entity_id}"
-    headers = {"Authorization": HA_TOKEN}
+    headers = "Authorization": f"Bearer {HA_TOKEN}",
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json().get("attributes", {}).get("options", [])
