@@ -66,7 +66,8 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "checkin_time": date,
         "checkout_time": default_checkout,
         "created_by": "",
-        "id": ""
+        "id": "",
+        "lang": lang
     }
     if booking:
         for key in data:
@@ -81,6 +82,7 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "button": tr("save") if booking else tr("create"),
         "guest_house_ids": guest_house_ids,
         "created_by_options": created_by_options,
+        "lang": lang,
         "original_id": data["id"],
         "existing": bool(data["id"]),
         "error": error,
@@ -105,6 +107,7 @@ async def confirm_delete(request: Request, booking_id: int):
         "guest_name": f"{booking['guest_first_name']} {booking['guest_last_name']}",
         "checkin": booking["checkin_time"],
         "checkout": booking["checkout_time"],
+        "lang": lang,
         "tr": tr
     })
 
@@ -131,7 +134,8 @@ async def save_booking(
     checkin_time: str = Form(...),
     checkout_time: str = Form(...),
     created_by: str = Form(""),
-    original_id: str = Form("")
+    original_id: str = Form(""),
+    lang: str = Form("hu")
 ):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -177,6 +181,7 @@ async def save_booking(
             "guest_house_ids": guest_house_ids,
             "created_by_options": created_by_options,
             "original_id": original_id,
+            "lang": lang,
             "existing": bool(original_id),
             "error": error_msg,
             "tr": tr
@@ -196,6 +201,7 @@ async def save_booking(
             "button": "Mentés" if original_id else "Létrehozás",
             "guest_house_ids": guest_house_ids,
             "created_by_options": created_by_options,
+            "lang": lang,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": tr("date_format_error", ", ".join(formatted_days), lang=lang)
@@ -211,6 +217,7 @@ async def save_booking(
             "guest_house_ids": guest_house_ids,
             "created_by_options": created_by_options,
             "original_id": original_id,
+            "lang": lang,
             "existing": bool(original_id),
             "error": tr("invalid_dates", ", ".join(formatted_days), lang=lang)
         })
@@ -263,6 +270,7 @@ async def save_booking(
             "guest_house_ids": guest_house_ids,
             "created_by_options": created_by_options,
             "original_id": original_id,
+            "lang": lang,
             "existing": bool(original_id),
             "error": tr("conflict", ", ".join(formatted_days), lang=lang)
         })
