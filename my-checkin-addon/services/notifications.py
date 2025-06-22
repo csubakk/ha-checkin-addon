@@ -80,7 +80,7 @@ def send_guest_email(booking_id: int):
     arrival = row["checkin_time"]
     departure = row["checkout_time"]
     house = row["guest_house_id"]
-    lang = row.get("lang") or "en"
+    lang = row["lang"] if "lang" in row.keys() else "en"
 
     subject, body = get_email_content(lang, "confirmation", name=name, arrival=arrival, departure=departure, house=house)
     return send_email(recipient, subject, body, message_id=f"<guest-{row['id']}@tapexpert.eu>")
@@ -115,7 +115,7 @@ def send_checkin_link(booking_id: int):
     arrival = row["checkin_time"]
     house = row["guest_house_id"]
     link = f"{cfg['BASE_URL']}?token={token}"
-    lang = row.get("lang") or "en"
+    lang = row["lang"] if "lang" in row.keys() else "en"
 
     subject, body = get_email_content(lang, "checkin", name=name, arrival=arrival, house=house, link=link)
     send_email(recipient, subject, body)
@@ -177,7 +177,7 @@ def send_checkin_reminders_for_today():
         name = f"{row['guest_first_name']} {row['guest_last_name']}"
         arrival_date = row["checkin_time"].split(" ")[0]
         link = f"{cfg['BASE_URL']}?token={token}"
-        lang = row.get("lang") or "en"
+        lang = row["lang"] if "lang" in row.keys() else "en"
 
         subject, body = get_email_content(lang, "reminder", name=name, arrival=arrival_date, link=link)
         send_email(recipient, subject, body)
@@ -202,7 +202,7 @@ def send_access_link(booking_id: int):
     token = row["access_token"]
     name = f"{row['guest_first_name']} {row['guest_last_name']}"
     link = f"{cfg['BASE_URL']}?token={token}"
-    lang = row.get("lang") or "en"
+    lang = row["lang"] if "lang" in row.keys() else "en"
 
     subject, body = get_email_content(lang, "access", name=name, link=link)
     return send_email(recipient, subject, body, message_id=f"<access-{row['id']}@tapexpert.eu>")
