@@ -11,7 +11,8 @@ router = APIRouter()
 
 DB_PATH = "/config/guestbook.db"
 templates = Jinja2Templates(directory="/app/templates")
-EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
+EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\\.[^@]+")
+PHONE_REGEX = re.compile(r"^(?:\+|00)?\d{9,15}$")
 HOUSE_IDS = ["1", "2"]
 
 def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
@@ -128,8 +129,21 @@ async def save_booking(
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    if not guest_email or not EMAIL_REGEX.match(guest_email):
+    cleaned_phone = re.sub(r"[^\\d\+]", "", guest_phone.strip())
+
+    if not guest_first_name.strip() or not guest_last_name.strip():
         conn.close()
+        error_msg = "A vendég neve nem lehet üres."
+    elif not guest_email or not EMAIL_REGEX.match(guest_email):
+        conn.close()
+        error_msg = "Hibás vagy hiányzó email cím!"
+    elif not cleaned_phone or not PHONE_REGEX.match(cleaned_phone):
+        conn.close()
+        error_msg = "Hibás telefonszám! Kérjük, adjon meg legalább 9 számjegyet, + vagy 00 előtaggal."
+    else:
+        error_msg = None
+
+    if error_msg:
         guest_data = {
             "guest_first_name": guest_first_name,
             "guest_last_name": guest_last_name,
@@ -159,8 +173,10 @@ async def save_booking(
             "guest_house_ids": HOUSE_IDS,
             "original_id": original_id,
             "existing": bool(original_id),
-            "error": "Hibás vagy hiányzó email cím!"
+            "error": error_msg
         })
+
+    guest_phone = cleaned_phone
 
     try:
         checkin_dt = datetime.fromisoformat(checkin_time)
@@ -287,8 +303,6 @@ async def save_booking(
             now, now, access_token
         ))
         booking_id = cursor.lastrowid
- #       with open("/config/debug.log", "a") as f:
- #           f.write(f"[INFO] Új foglalás ID: {booking_id} – {guest_first_name} {guest_last_name}\n")
 
     conn.commit()
     conn.close()
@@ -300,5 +314,5 @@ async def save_booking(
         except Exception as e:
             with open("/config/debug.log", "a") as f:
                 f.write(f"[HIBA] Emailküldés hiba: {str(e)}\n")
-    
+
     return RedirectResponse(url=f"/calendar", status_code=303)
