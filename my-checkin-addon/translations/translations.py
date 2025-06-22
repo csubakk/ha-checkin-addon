@@ -25,7 +25,7 @@ TRANSLATIONS = {
         "room": "Camera {}",
         "weekday_names": ['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'],
         "month_names": ['', 'ian.', 'feb.', 'mart.', 'apr.', 'mai', 'iun.',
-                        'iul.', 'aug.', 'sept.', 'oct.', 'nov.', 'dec.'],
+                        'iul.', 'aug.', 'sept.', 'oct.', 'noi.', 'dec.'],
     },
 }
 
