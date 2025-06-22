@@ -2,7 +2,7 @@
 <html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>{{ tr("delete_title") }}</title>
+    <title>{{ tr("delete_title", lang=lang) }}</title>
     <style>
         body { font-family: sans-serif; margin: 2em; }
         .warning { color: red; font-weight: bold; font-size: 1.2em; }
@@ -23,15 +23,15 @@
     </style>
 </head>
 <body>
-    <div class="warning">{{ tr("delete_warning") }}</div>
-    <p><strong>{{ tr("guest") }}:</strong> {{ guest_name }}</p>
-    <p><strong>{{ tr("checkin") }}:</strong> {{ checkin }}</p>
-    <p><strong>{{ tr("checkout") }}:</strong> {{ checkout }}</p>
+    <div class="warning">{{ tr("delete_warning", lang=lang) }}</div>
+    <p><strong>{{ tr("guest", lang=lang) }}:</strong> {{ guest_name }}</p>
+    <p><strong>{{ tr("checkin", lang=lang) }}:</strong> {{ checkin }}</p>
+    <p><strong>{{ tr("checkout", lang=lang) }}:</strong> {{ checkout }}</p>
 
     <form action="/delete_booking" method="post">
         <input type="hidden" name="booking_id" value="{{ booking_id }}">
-        <button type="submit" class="delete-btn">{{ tr("confirm_delete") }}</button>
-        <a href="/calendar" class="cancel-link">{{ tr("cancel") }}</a>
+        <button type="submit" class="delete-btn">{{ tr("confirm_delete", lang=lang) }}</button>
+        <a href="/calendar" class="cancel-link">{{ tr("cancel", lang=lang) }}</a>
     </form>
 </body>
 </html>
