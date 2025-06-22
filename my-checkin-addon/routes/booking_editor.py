@@ -5,6 +5,7 @@ import sqlite3
 from datetime import datetime, timedelta
 import uuid
 import re
+import os
 import requests
 from services import notifications
 
