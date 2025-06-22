@@ -36,6 +36,13 @@ TRANSLATIONS = {
         "invalid_dates": "Távozás nem lehet az érkezés előtt vagy azonos nap.",
         "date_format_error": "Dátum formátuma hibás.",
         "conflict": "Ütközés: már van foglalás ezeken a napokon: {}"
+        "delete_title": "Foglalás törlése",
+        "delete_warning": "Biztosan törlöd ezt a foglalást?",
+        "guest": "Vendég",
+        "checkin": "Érkezés",
+        "checkout": "Távozás",
+        "confirm_delete": "Igen, törlöm",
+        "cancel": "Mégse"
     },
     "ro": {
         "title": "Calendar rezervări",
@@ -68,6 +75,13 @@ TRANSLATIONS = {
         "invalid_dates": "Plecarea nu poate fi înainte sau în aceeași zi cu sosirea.",
         "date_format_error": "Formatul datei este incorect.",
         "conflict": "Conflict: există deja rezervări în aceste zile: {}"
+        "delete_title": "Ștergere rezervare",
+        "delete_warning": "Sigur vrei să ștergi?",
+        "guest": "Oaspete",
+        "checkin": "Sosire",
+        "checkout": "Plecare",
+        "confirm_delete": "Da, șterg",
+        "cancel": "Cancel"
     },
 }
 
