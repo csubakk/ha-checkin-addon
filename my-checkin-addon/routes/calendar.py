@@ -4,6 +4,7 @@ import sqlite3
 import os
 import requests
 from datetime import datetime, timedelta
+from translations.translations import get_translations  # új
 
 router = APIRouter()
 DB_PATH = "/config/guestbook.db"
@@ -11,9 +12,8 @@ DB_PATH = "/config/guestbook.db"
 HA_URL = os.getenv("HA_URL")  # például: https://teszt.tapexpert.eu/api
 HA_TOKEN = os.getenv("HA_TOKEN")
 
-NAPOK = ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V']
-HONAPOK = ['', 'jan.', 'feb.', 'márc.', 'ápr.', 'máj.', 'jún.',
-           'júl.', 'aug.', 'szep.', 'okt.', 'nov.', 'dec.']
+# nyelvi konstansok most dinamikusan
+
 
 def get_guest_house_ids_from_ha():
     import os
@@ -36,8 +36,10 @@ def get_guest_house_ids_from_ha():
         print("❌ Nem sikerült lekérni a szobaazonosítókat:", e)
         return ["1"]
 
+
 @router.get("/calendar", response_class=HTMLResponse)
 def calendar_page(request: Request):
+    tr = get_translations()
     room_ids = get_guest_house_ids_from_ha()
     multiple_rooms = len(room_ids) > 1
 
@@ -75,6 +77,9 @@ def calendar_page(request: Request):
         except:
             continue
 
+    HONAPOK = tr["months"]
+    NAPOK = tr["weekdays"]
+
     # Táblázat építése
     rows = []
     for d in days:
@@ -96,8 +101,8 @@ def calendar_page(request: Request):
         rows.append(row)
 
     # HTML generálás
-    th_cells = "<th>Dátum</th><th>Nap</th>" + "".join(
-        f"<th>{rid}. szoba</th>" for rid in room_ids)
+    th_cells = f"<th>{tr['date']}</th><th>{tr['day']}</th>" + "".join(
+        f"<th>{rid}. {tr['room']}</th>" for rid in room_ids)
 
     table_html = f"""
     <!DOCTYPE html>
@@ -105,7 +110,7 @@ def calendar_page(request: Request):
     <head>
         <meta charset=\"UTF-8\">
         <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-        <title>Foglalási naptár</title>
+        <title>{tr['calendar_title']}</title>
         <style>
             body {{
                 font-family: sans-serif;
@@ -155,10 +160,10 @@ def calendar_page(request: Request):
         </style>
     </head>
     <body>
-        <h2>Foglalási naptár</h2>
+        <h2>{tr['calendar_title']}</h2>
         <div class=\"nav\">
-            <a href=\"#\">⬅️ Vissza</a>
-            <a href=\"#\">Előre ➡️</a>
+            <a href=\"#\">⬅️ {tr['back']}</a>
+            <a href=\"#\">{tr['forward']} ➡️</a>
         </div>
 
         <table>
