@@ -29,7 +29,13 @@ TRANSLATIONS = {
         "edit_booking": "Foglalás szerkesztése",
         "new_booking": "Új foglalás",
         "save": "Mentés",
-        "create": "Létrehozás"
+        "create": "Létrehozás",
+        "invalid_email": "Hibás vagy hiányzó email cím!",
+        "invalid_phone": "Hibás telefonszám! Kérjük, adjon meg legalább 9 számjegyet, +, 00 vagy 07 előtaggal.",
+        "empty_name": "A vendég neve nem lehet üres.",
+        "invalid_dates": "Távozás nem lehet az érkezés előtt vagy azonos nap.",
+        "date_format_error": "Dátum formátuma hibás.",
+        "conflict": "Ütközés: már van foglalás ezeken a napokon: {}"
     },
     "ro": {
         "title": "Calendar rezervări",
@@ -55,7 +61,13 @@ TRANSLATIONS = {
         "edit_booking": "Modificare rezervare",
         "new_booking": "Rezervare nouă",
         "save": "Salvare",
-        "create": "Salvare"
+        "create": "Salvare",
+        "invalid_email": "Adresă de email lipsă sau incorectă!",
+        "invalid_phone": "Număr de telefon invalid! Vă rugăm să introduceți cel puțin 9 cifre, cu prefix +, 00 sau 07.",
+        "empty_name": "Numele oaspetelui nu poate fi gol.",
+        "invalid_dates": "Plecarea nu poate fi înainte sau în aceeași zi cu sosirea.",
+        "date_format_error": "Formatul datei este incorect.",
+        "conflict": "Conflict: există deja rezervări în aceste zile: {}"
     },
 }
 
