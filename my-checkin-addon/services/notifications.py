@@ -100,8 +100,10 @@ def send_checkin_link(booking_id: int):
         checkin_date = datetime.strptime(checkin_time_raw, "%Y-%m-%d %H:%M:%S").date()
     except ValueError:
         checkin_date = datetime.strptime(checkin_time_raw, "%Y-%m-%d").date()
-    if checkin_date != (datetime.now().date() + timedelta(days=1)):
-        print(f"[INFO] Nem küldünk check-in linket, mert az érkezés nem holnap: {checkin_date}")
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+    if checkin_date not in [today, tomorrow]:
+        print(f"[INFO] Nem küldünk check-in linket, mert az érkezés nem ma vagy holnap: {checkin_date}")
         return False
 
     recipient = row["guest_email"]
