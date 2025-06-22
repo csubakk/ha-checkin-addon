@@ -77,8 +77,8 @@ def calendar_page(request: Request):
         except:
             continue
 
-    HONAPOK = tr["months"]
-    NAPOK = tr["weekdays"]
+    HONAPOK = tr["month_names"]
+    NAPOK = tr["weekday_names"]
 
     # Táblázat építése
     rows = []
@@ -102,7 +102,7 @@ def calendar_page(request: Request):
 
     # HTML generálás
     th_cells = f"<th>{tr['date']}</th><th>{tr['day']}</th>" + "".join(
-        f"<th>{rid}. {tr['room']}</th>" for rid in room_ids)
+        f"<th>{tr['room'].format(rid)}</th>" for rid in room_ids)
 
     table_html = f"""
     <!DOCTYPE html>
