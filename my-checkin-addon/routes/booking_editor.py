@@ -197,8 +197,8 @@ async def save_booking(
         return templates.TemplateResponse("edit_booking.html", {
             "request": request,
             "guest": form_data,
-            "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
-            "button": "Mentés" if original_id else "Létrehozás",
+            "mode": tr("edit_booking", lang=lang) if original_id else tr("new_booking", lang=lang),
+            "button": tr("save", lang=lang) if original_id else tr("create", lang=lang),
             "guest_house_ids": guest_house_ids,
             "created_by_options": created_by_options,
             "lang": lang,
@@ -212,8 +212,8 @@ async def save_booking(
         return templates.TemplateResponse("edit_booking.html", {
             "request": request,
             "guest": form_data,
-            "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
-            "button": "Mentés" if original_id else "Létrehozás",
+            "mode": tr("edit_booking", lang=lang) if original_id else tr("new_booking", lang=lang),
+            "button": tr("save", lang=lang) if original_id else tr("create", lang=lang),
             "guest_house_ids": guest_house_ids,
             "created_by_options": created_by_options,
             "original_id": original_id,
@@ -265,8 +265,8 @@ async def save_booking(
         return templates.TemplateResponse("edit_booking.html", {
             "request": request,
             "guest": guest_data,
-            "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
-            "button": "Mentés" if original_id else "Létrehozás",
+            "mode": tr("edit_booking", lang=lang) if original_id else tr("new_booking", lang=lang),
+            "button": tr("save", lang=lang) if original_id else tr("create", lang=lang),
             "guest_house_ids": guest_house_ids,
             "created_by_options": created_by_options,
             "original_id": original_id,
