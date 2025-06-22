@@ -8,7 +8,7 @@ import re
 import os
 import requests
 from services import notifications
-from translations.translations import get_translations
+from translations.translations import get_translations, tr
 
 router = APIRouter()
 
@@ -85,6 +85,7 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "original_id": data["id"],
         "existing": bool(data["id"]),
         "error": error,
+        "tr": tr
     })
 
 @router.get("/confirm_delete", response_class=HTMLResponse)
@@ -106,7 +107,8 @@ async def confirm_delete(request: Request, booking_id: int):
         "booking_id": booking_id,
         "guest_name": f"{booking['guest_first_name']} {booking['guest_last_name']}",
         "checkin": booking["checkin_time"],
-        "checkout": booking["checkout_time"]
+        "checkout": booking["checkout_time"],
+        "tr": tr
     })
 
 
@@ -181,7 +183,8 @@ async def save_booking(
             "created_by_options": created_by_options,
             "original_id": original_id,
             "existing": bool(original_id),
-            "error": error_msg
+            "error": error_msg,
+            "tr": tr
         })
 
     guest_phone = cleaned_phone
