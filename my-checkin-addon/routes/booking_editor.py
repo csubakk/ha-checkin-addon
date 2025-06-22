@@ -316,7 +316,7 @@ async def save_booking(
                 checkin_time, checkout_time, guest_count, notes, checkin_email_sent_at,
                 checkout_completed, created_at, updated_at, guest_email, guest_phone,
                 guest_house_id, access_token, created_by, access_email_sent_at, lang
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             guest_first_name, guest_last_name, None, None, None,
             None, None, None, None, None, None, 
