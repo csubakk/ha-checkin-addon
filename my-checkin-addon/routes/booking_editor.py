@@ -280,16 +280,18 @@ async def save_booking(
     else:
         cursor.execute("""
             INSERT INTO guest_bookings (
-                guest_first_name, guest_last_name, guest_email, guest_phone,
-                guest_count, notes, guest_house_id,
-                checkin_time, checkout_time, created_by,
-                created_at, updated_at, access_token
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                guest_first_name, guest_last_name, birth_date, birth_place, nationality,
+                document_type, document_number, cnp, address, travel_purpose, signature,
+                checkin_time, checkout_time, guest_count, notes, checkin_email_sent_at,
+                checkout_completed, created_at, updated_at, guest_email, guest_phone,
+                guest_house_id, access_token, created_by, access_email_sent_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            guest_first_name, guest_last_name, guest_email, guest_phone,
-            guest_count, notes, guest_house_id,
-            checkin_time, checkout_time, created_by,
-            now, now, access_token
+            guest_first_name, guest_last_name, None, None, None,
+            None, None, None, None, None, None,
+            checkin_time, checkout_time, guest_count, notes, None,
+            0, now, now, guest_email, guest_phone,
+            guest_house_id, access_token, created_by, None
         ))
         booking_id = cursor.lastrowid
 
