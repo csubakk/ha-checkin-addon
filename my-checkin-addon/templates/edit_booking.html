@@ -1,28 +1,27 @@
-<!-- /config/templates/edit_booking.html -->
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <title>{{ mode }}</title>
-<style>
-    body { font-family: sans-serif; margin: 2em; }
-    label { display: block; margin-top: 1em; }
-    input, select { width: 100%; padding: 0.5em; }
-    button { margin-top: 1em; padding: 0.5em 1em; }
-    .error { color: red; margin-bottom: 1em; }
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        label { display: block; margin-top: 1em; }
+        input, select { width: 100%; padding: 0.5em; }
+        button { margin-top: 1em; padding: 0.5em 1em; }
+        .error { color: red; margin-bottom: 1em; }
 
-    .delete-button {
-        background-color: red;
-        color: white;
-        padding: 0.5em 1em;
-        border-radius: 4px;
-        border: none;
-        text-decoration: none;
-        font-weight: bold;
-        margin-left: 1em;
-        display: inline-block;
-    }
-</style>
+        .delete-button {
+            background-color: red;
+            color: white;
+            padding: 0.5em 1em;
+            border-radius: 4px;
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 1em;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
     <h2>{{ mode }}</h2>
@@ -32,31 +31,36 @@
     <form action="/save_booking" method="post">
         <input type="hidden" name="existing" value="{{ '1' if existing else '' }}">
         <input type="hidden" name="original_id" value="{{ original_id }}">
-        <label>Vezetéknév <input name="guest_last_name" value="{{ guest.guest_last_name }}"></label>
-        <label>Keresztnév <input name="guest_first_name" value="{{ guest.guest_first_name }}"></label>
-        <label>Email <input name="guest_email" value="{{ guest.guest_email }}"></label>
-        <label>Telefon <input name="guest_phone" value="{{ guest.guest_phone }}"></label>
-        <label>Szoba:
+
+        <label>{{ tr["last_name"] }} <input name="guest_last_name" value="{{ guest.guest_last_name }}"></label>
+        <label>{{ tr["first_name"] }} <input name="guest_first_name" value="{{ guest.guest_first_name }}"></label>
+        <label>{{ tr["email"] }} <input name="guest_email" value="{{ guest.guest_email }}"></label>
+        <label>{{ tr["phone"] }} <input name="guest_phone" value="{{ guest.guest_phone }}"></label>
+
+        <label>{{ tr["room"] }}
             <select name="guest_house_id">
                 {% for rid in guest_house_ids %}
                 <option value="{{ rid }}" {{ 'selected' if guest.guest_house_id == rid or guest.guest_house_id|string == rid else '' }}>{{ rid }}</option>
                 {% endfor %}
             </select>
         </label>
-        <label>Érkezés: <input type="date" name="checkin_time" value="{{ guest.checkin_time }}"></label>
-        <label>Távozás: <input type="date" name="checkout_time" value="{{ guest.checkout_time }}"></label>
-        <label>Vendégek száma <input type="number" name="guest_count" value="{{ guest.guest_count }}"></label>
-        <label>Megjegyzés <input name="notes" value="{{ guest.notes }}"></label>
-        <label>Rögzítő:
+
+        <label>{{ tr["arrival"] }} <input type="date" name="checkin_time" value="{{ guest.checkin_time }}"></label>
+        <label>{{ tr["departure"] }} <input type="date" name="checkout_time" value="{{ guest.checkout_time }}"></label>
+        <label>{{ tr["guest_count"] }} <input type="number" name="guest_count" value="{{ guest.guest_count }}"></label>
+        <label>{{ tr["notes"] }} <input name="notes" value="{{ guest.notes }}"></label>
+
+        <label>{{ tr["created_by"] }}
             <select name="created_by">
                 {% for user in created_by_options %}
                 <option value="{{ user }}" {{ 'selected' if guest.created_by == user else '' }}>{{ user }}</option>
                 {% endfor %}
             </select>
         </label>
+
         <button type="submit">{{ button }}</button>
         {% if existing %}
-            <a href="/confirm_delete?booking_id={{ original_id }}" class="delete-button">Törlés</a>
+            <a href="/confirm_delete?booking_id={{ original_id }}" class="delete-button">{{ tr["delete"] }}</a>
         {% endif %}
     </form>
 </body>
