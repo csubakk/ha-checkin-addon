@@ -16,7 +16,17 @@ TRANSLATIONS = {
         "month_names": ['', 'jan.', 'feb.', 'márc.', 'ápr.', 'máj.', 'jún.',
                         'júl.', 'aug.', 'szep.', 'okt.', 'nov.', 'dec.'],
     },
-    # később bővíthető pl. "ro": { ... }
+    "ro": {
+        "title": "Calendar rezervări",
+        "back": "⬅️ Înapoi",
+        "forward": "Înainte ➡️",
+        "date": "Dată",
+        "day": "Zi",
+        "room": "Camera {}",
+        "weekday_names": ['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'],
+        "month_names": ['', 'ian.', 'feb.', 'mart.', 'apr.', 'mai', 'iun.',
+                        'iul.', 'aug.', 'sept.', 'oct.', 'nov.', 'dec.'],
+    },
 }
 
 
