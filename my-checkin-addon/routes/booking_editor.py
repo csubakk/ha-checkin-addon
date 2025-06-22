@@ -129,7 +129,7 @@ async def save_booking(
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    cleaned_phone = re.sub(r"[^\\d\+]", "", guest_phone.strip())
+    cleaned_phone = re.sub(r"[^\d\+]", "", guest_phone.strip())
 
     if not guest_first_name.strip() or not guest_last_name.strip():
         conn.close()
