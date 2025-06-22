@@ -293,21 +293,6 @@ async def save_booking(
         ))
         booking_id = original_id
     else:
-        with open("/config/debug.log", "a") as f:
-        f.write("=== ÚJ FOGLALÁS BESZÚRÁSA ===\n")
-        f.write(f"guest_lang: {repr(guest_lang)}\n")
-        f.write(f"access_token: {repr(access_token)}\n")
-        values = (
-            guest_first_name, guest_last_name, None, None, None,
-            None, None, None, None, None, None,
-            checkin_time, checkout_time, guest_count, notes, None,
-            0, now, now, guest_email, guest_phone,
-            guest_house_id, access_token, created_by, None,
-            guest_lang
-        )
-        f.write(f"Paraméterek száma: {len(values)}\n")
-        f.write(f"Paraméterek: {repr(values)}\n")
-        f.write("==============================\n")
         
         cursor.execute("""
             INSERT INTO guest_bookings (
