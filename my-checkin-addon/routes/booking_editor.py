@@ -299,7 +299,7 @@ async def save_booking(
             f.write(f"access_token: {repr(access_token)}\n")
             values = (
                 guest_first_name, guest_last_name, None, None, None,
-                None, None, None, None, None, None,
+                None, None, None, None, None, None,  None, # signature is the last of these
                 checkin_time, checkout_time, guest_count, notes, None,
                 0, now, now, guest_email, guest_phone,
                 guest_house_id, access_token, created_by, None,
