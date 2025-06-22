@@ -15,6 +15,17 @@ TRANSLATIONS = {
         "weekday_names": ['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V'],
         "month_names": ['', 'jan.', 'feb.', 'márc.', 'ápr.', 'máj.', 'jún.',
                         'júl.', 'aug.', 'szep.', 'okt.', 'nov.', 'dec.'],
+        "last_name": "Vezetéknév",
+        "first_name": "Keresztnév",
+        "email": "Email",
+        "phone": "Telefon",
+        "room": "Szoba",
+        "arrival": "Érkezés",
+        "departure": "Távozás",
+        "guest_count": "Vendégek száma",
+        "notes": "Megjegyzés",
+        "created_by": "Rögzítő",
+        "delete": "Törlés"
     },
     "ro": {
         "title": "Calendar rezervări",
@@ -26,6 +37,17 @@ TRANSLATIONS = {
         "weekday_names": ['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'],
         "month_names": ['', 'ian.', 'feb.', 'mart.', 'apr.', 'mai', 'iun.',
                         'iul.', 'aug.', 'sept.', 'oct.', 'noi.', 'dec.'],
+        "last_name": "Nume de familie",
+        "first_name": "Prenume",
+        "email": "Email",
+        "phone": "Telefon",
+        "room": "Cameră",
+        "arrival": "Sosire",
+        "departure": "Plecare",
+        "guest_count": "Număr de oaspeți",
+        "notes": "Observații",
+        "created_by": "Înregistrat de",
+        "delete": "Ștergere"
     },
 }
 
