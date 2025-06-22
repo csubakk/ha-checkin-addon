@@ -4,8 +4,7 @@ import sqlite3
 import os
 import requests
 from datetime import datetime, timedelta
-from translations.translations import tr, get_weekday_names, get_month_names
-
+from translations.translations import tr, get_translations, get_weekday_names, get_month_names
 
 router = APIRouter()
 DB_PATH = "/config/guestbook.db"
