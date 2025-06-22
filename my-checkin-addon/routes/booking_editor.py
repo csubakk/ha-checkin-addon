@@ -137,6 +137,8 @@ async def save_booking(
     elif not guest_email or not EMAIL_REGEX.fullmatch(guest_email.strip()):
         conn.close()
         error_msg = "Hibás vagy hiányzó email cím!"
+        with open("/config/debug.log", "a") as f:
+            f.write(f"[DEBUG] Beérkezett email: '{guest_email}'\n")
     elif not cleaned_phone or not PHONE_REGEX.match(cleaned_phone):
         conn.close()
         error_msg = "Hibás telefonszám! Kérjük, adjon meg legalább 9 számjegyet, + vagy 00 előtaggal."
