@@ -39,7 +39,7 @@
         <label>Szoba:
             <select name="guest_house_id">
                 {% for rid in guest_house_ids %}
-                <option value="{{ rid }}" {{ 'selected' if guest.guest_house_id|string == rid else '' }}>{{ rid }}</option>
+                <option value="{{ rid }}" {{ 'selected' if guest.guest_house_id == rid or guest.guest_house_id|string == rid else '' }}>{{ rid }}</option>
                 {% endfor %}
             </select>
         </label>
