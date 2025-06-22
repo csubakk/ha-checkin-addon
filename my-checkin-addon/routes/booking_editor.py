@@ -14,6 +14,7 @@ router = APIRouter()
 
 HA_URL = os.getenv("HA_URL")
 HA_TOKEN = os.getenv("HA_TOKEN")
+lang = os.getenv("HOST_LANGUAGE", "hu")
 
 DB_PATH = "/config/guestbook.db"
 templates = Jinja2Templates(directory="/app/templates")
