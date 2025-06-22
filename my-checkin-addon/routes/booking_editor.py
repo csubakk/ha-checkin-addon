@@ -299,17 +299,15 @@ async def save_booking(
                 document_type, document_number, cnp, address, travel_purpose, signature,
                 checkin_time, checkout_time, guest_count, notes, checkin_email_sent_at,
                 checkout_completed, created_at, updated_at, guest_email, guest_phone,
-                guest_house_id, access_token, created_by, access_email_sent_at,
-                lang
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                ?)
+                guest_house_id, access_token, created_by, access_email_sent_at, lang
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             guest_first_name, guest_last_name, None, None, None,
             None, None, None, None, None, None,
             checkin_time, checkout_time, guest_count, notes, None,
             0, now, now, guest_email, guest_phone,
-            guest_house_id, access_token, created_by, None,
-            guest_lang
+            guest_house_id, access_token, created_by, None,  # ← access_email_sent_at
+            guest_lang  # ← lang mező
         ))
         booking_id = cursor.lastrowid
 
