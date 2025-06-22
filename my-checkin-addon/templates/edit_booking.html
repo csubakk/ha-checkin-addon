@@ -2,7 +2,7 @@
 <html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>{{ mode }}</title>
+    <title>{{ tr(mode) }}</title>
     <style>
         body { font-family: sans-serif; margin: 2em; }
         label { display: block; margin-top: 1em; }
@@ -24,10 +24,12 @@
     </style>
 </head>
 <body>
-    <h2>{{ mode }}</h2>
+    <h2>{{ tr(mode) }}</h2>
+
     {% if error %}
     <div class="error">{{ error }}</div>
     {% endif %}
+
     <form action="/save_booking" method="post">
         <input type="hidden" name="existing" value="{{ '1' if existing else '' }}">
         <input type="hidden" name="original_id" value="{{ original_id }}">
@@ -58,7 +60,8 @@
             </select>
         </label>
 
-        <button type="submit">{{ button }}</button>
+        <button type="submit">{{ tr(button) }}</button>
+
         {% if existing %}
             <a href="/confirm_delete?booking_id={{ original_id }}" class="delete-button">{{ tr("delete") }}</a>
         {% endif %}
