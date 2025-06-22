@@ -60,7 +60,13 @@
                 {% endfor %}
             </select>
         </label>
-
+        <label>{{ tr("guest_language") }}
+            <select name="guest_lang">
+                <option value="hu" {{ 'selected' if guest.lang == 'hu' else '' }}>magyar</option>
+                <option value="ro" {{ 'selected' if guest.lang == 'ro' else '' }}>română</option>
+                <option value="en" {{ 'selected' if guest.lang == 'en' or not guest.lang else '' }}>english</option>
+            </select>
+        </label>
         <button type="submit">{{ tr(button) }}</button>
 
         {% if existing %}
