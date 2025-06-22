@@ -74,7 +74,6 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         data["id"] = booking["id"]
     
     lang = os.getenv("HOST_LANGUAGE", "hu")
-    tr = get_translations(lang)
     return templates.TemplateResponse("edit_booking.html", {
         "request": request,
         "guest": data,
@@ -101,7 +100,6 @@ async def confirm_delete(request: Request, booking_id: int):
         raise HTTPException(status_code=404, detail="Foglalás nem található.")
 
     lang = os.getenv("HOST_LANGUAGE", "hu")
-    tr = get_translations(lang)
     return templates.TemplateResponse("confirm_delete.html", {
         "request": request,
         "booking_id": booking_id,
@@ -173,7 +171,6 @@ async def save_booking(
         }
         
         lang = os.getenv("HOST_LANGUAGE", "hu")
-        tr = get_translations(lang)
         return templates.TemplateResponse("edit_booking.html", {
             "request": request,
             "guest": guest_data,
