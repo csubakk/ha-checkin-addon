@@ -5,15 +5,28 @@ import sqlite3
 from datetime import datetime, timedelta
 import uuid
 import re
+import requests
 from services import notifications
 
 router = APIRouter()
+
+HA_URL = os.getenv("HA_URL")  # például: https://teszt.tapexpert.eu/api
+HA_TOKEN = os.getenv("HA_TOKEN")
 
 DB_PATH = "/config/guestbook.db"
 templates = Jinja2Templates(directory="/app/templates")
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 PHONE_REGEX = re.compile(r"^(?:\+|00)?\d{9,15}$")
 HOUSE_IDS = ["1", "2"]
+
+
+def get_input_select_options(entity_id: str):
+    url = f"{HA_URL}/states/{entity_id}"
+    headers = {"Authorization": HA_TOKEN}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("attributes", {}).get("options", [])
+    return []
 
 def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     conn = sqlite3.connect(DB_PATH)
@@ -34,7 +47,9 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
     booking = get_booking_by_date_and_house(date, house_id)
     checkin_dt = datetime.fromisoformat(date)
     default_checkout = (checkin_dt + timedelta(days=1)).date().isoformat()
-
+    created_by_options = get_input_select_options("input_select.created_by")
+    guest_house_ids = get_input_select_options("input_select.guest_house_id")
+    
     data = {
         "guest_first_name": "",
         "guest_last_name": "",
@@ -50,10 +65,10 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "guest_phone": "",
         "guest_count": 1,
         "notes": "",
-        "guest_house_id": house_id,
+        "guest_house_id": guest_house_ids,
         "checkin_time": date,
         "checkout_time": default_checkout,
-        "created_by": "Csaba",
+        "created_by": created_by_options,
         "id": ""
     }
     if booking:
