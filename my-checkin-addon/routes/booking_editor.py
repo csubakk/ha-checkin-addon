@@ -11,7 +11,7 @@ router = APIRouter()
 
 DB_PATH = "/config/guestbook.db"
 templates = Jinja2Templates(directory="/app/templates")
-EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\\.[^@]+")
+EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 PHONE_REGEX = re.compile(r"^(?:\+|00)?\d{9,15}$")
 HOUSE_IDS = ["1", "2"]
 
