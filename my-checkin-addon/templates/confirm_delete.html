@@ -1,9 +1,8 @@
-<!-- /config/templates/confirm_delete.html -->
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>Foglalás törlése</title>
+    <title>{{ tr("delete_title") }}</title>
     <style>
         body { font-family: sans-serif; margin: 2em; }
         .warning { color: red; font-weight: bold; font-size: 1.2em; }
@@ -24,15 +23,15 @@
     </style>
 </head>
 <body>
-    <div class="warning">Biztosan törlöd ezt a foglalást?</div>
-    <p><strong>Vendég:</strong> {{ guest_name }}</p>
-    <p><strong>Érkezés:</strong> {{ checkin }}</p>
-    <p><strong>Távozás:</strong> {{ checkout }}</p>
+    <div class="warning">{{ tr("delete_warning") }}</div>
+    <p><strong>{{ tr("guest") }}:</strong> {{ guest_name }}</p>
+    <p><strong>{{ tr("checkin") }}:</strong> {{ checkin }}</p>
+    <p><strong>{{ tr("checkout") }}:</strong> {{ checkout }}</p>
 
     <form action="/delete_booking" method="post">
         <input type="hidden" name="booking_id" value="{{ booking_id }}">
-        <button type="submit" class="delete-btn">Igen, törlöm</button>
-        <a href="/calendar" class="cancel-link">Mégse</a>
+        <button type="submit" class="delete-btn">{{ tr("confirm_delete") }}</button>
+        <a href="/calendar" class="cancel-link">{{ tr("cancel") }}</a>
     </form>
 </body>
 </html>
