@@ -49,7 +49,7 @@
         <label>Megjegyzés <input name="notes" value="{{ guest.notes }}"></label>
         <label>Rögzítő:
             <select name="created_by">
-                {% for user in ['Anna', 'Csaba', 'Levente', 'Zsolt'] %}
+                {% for user in created_by_options %}
                 <option value="{{ user }}" {{ 'selected' if guest.created_by == user else '' }}>{{ user }}</option>
                 {% endfor %}
             </select>
