@@ -44,7 +44,7 @@ TRANSLATIONS = {
         "confirm_delete": "Igen, törlöm",
         "cancel": "Mégse",
         "home": "Ma",
-        "guest_language": "Vendég nyelve",
+        "guest_language": "Vendég nyelve"
     },
     "ro": {
         "title": "Calendar rezervări",
@@ -85,7 +85,7 @@ TRANSLATIONS = {
         "confirm_delete": "Da, șterg",
         "cancel": "Renunță",
         "home": "Acasă",
-        "guest_language": "Limba oaspetelui",
+        "guest_language": "Limba oaspetelui"
     },
 }
 
