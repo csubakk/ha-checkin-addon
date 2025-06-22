@@ -25,7 +25,11 @@ TRANSLATIONS = {
         "guest_count": "Vendégek száma",
         "notes": "Megjegyzés",
         "created_by": "Rögzítő",
-        "delete": "Törlés"
+        "delete": "Törlés",
+        "edit_booking": "Foglalás szerkesztése",
+        "new_booking": "Új foglalás",
+        "save": "Mentés",
+        "create": "Létrehozás"
     },
     "ro": {
         "title": "Calendar rezervări",
@@ -47,7 +51,11 @@ TRANSLATIONS = {
         "guest_count": "Număr de oaspeți",
         "notes": "Observații",
         "created_by": "Înregistrat de",
-        "delete": "Ștergere"
+        "delete": "Ștergere",
+        "edit_booking": "Modificare rezervare",
+        "new_booking": "Rezervare nouă",
+        "save": "Salvare",
+        "create": "Salvare"
     },
 }
 
