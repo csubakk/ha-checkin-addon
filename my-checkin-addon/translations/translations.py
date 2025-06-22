@@ -29,6 +29,9 @@ TRANSLATIONS = {
     },
 }
 
+def get_translations():
+    lang = os.getenv("HOST_LANGUAGE", "hu")
+    return TRANSLATIONS.get(lang, TRANSLATIONS["hu"])
 
 def tr(key, *args):
     lang = HOST_LANGUAGE if HOST_LANGUAGE in TRANSLATIONS else "hu"
