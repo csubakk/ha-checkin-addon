@@ -110,7 +110,7 @@ def calendar_page(request: Request):
     <head>
         <meta charset=\"UTF-8\">
         <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-        <title>{tr['calendar_title']}</title>
+        <title>{tr['title']}</title>
         <style>
             body {{
                 font-family: sans-serif;
@@ -160,7 +160,7 @@ def calendar_page(request: Request):
         </style>
     </head>
     <body>
-        <h2>{tr['calendar_title']}</h2>
+        <h2>{tr['title']}</h2>
         <div class=\"nav\">
             <a href=\"#\">⬅️ {tr['back']}</a>
             <a href=\"#\">{tr['forward']} ➡️</a>
