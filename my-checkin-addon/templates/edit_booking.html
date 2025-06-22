@@ -32,6 +32,7 @@
 
     <form action="/save_booking" method="post">
         <input type="hidden" name="existing" value="{{ '1' if existing else '' }}">
+        <input type="hidden" name="lang" value="{{ lang }}">
         <input type="hidden" name="original_id" value="{{ original_id }}">
 
         <label>{{ tr("last_name") }} <input name="guest_last_name" value="{{ guest.guest_last_name }}"></label>
