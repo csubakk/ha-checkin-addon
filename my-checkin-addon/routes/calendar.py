@@ -94,8 +94,19 @@ def calendar_page(request: Request, start: str = "", lang: str = None):
         row += "</tr>"
         rows.append(row)
 
-    prev_start = (start_date - timedelta(days=35)).isoformat()
-    next_start = (start_date + timedelta(days=35)).isoformat()
+        prev_start = (start_date - timedelta(days=35)).isoformat()
+        next_start = (start_date + timedelta(days=35)).isoformat()
+        today_start = (datetime.today().date() - timedelta(days=7)).isoformat()
+
+        lang_param = f"&lang={lang}" if lang else ""
+
+        nav_html = f"""
+            <div class="nav">
+                <a href="/calendar?start={prev_start}{lang_param}">⬅️ {tr_dict['back']}</a>
+                <a href="/calendar?start={today_start}{lang_param}">🏠 {tr_dict.get('home', 'Ma')}</a>
+                <a href="/calendar?start={next_start}{lang_param}">{tr_dict['forward']} ➡️</a>
+            </div>
+        """
 
     th_cells = f"<th>{tr_dict['date']}</th><th>{tr_dict['day']}</th>" + "".join(
         f"<th>{tr_dict['room'].format(rid)}</th>" for rid in room_ids)
@@ -157,11 +168,7 @@ def calendar_page(request: Request, start: str = "", lang: str = None):
     </head>
     <body>
         <h2>{tr_dict['title']}</h2>
-        <div class="nav">
-            <a href="/calendar?start={prev_start}&lang={lang or 'hu'}">⬅️ {tr_dict['back']}</a>
-            <a href="/calendar?start={next_start}&lang={lang or 'hu'}">{tr_dict['forward']} ➡️</a>
-        </div>
-
+        {nav_html}
         <table>
             <thead>
                 <tr>{th_cells}</tr>
