@@ -145,13 +145,13 @@ async def save_booking(
 
     if not guest_first_name.strip() or not guest_last_name.strip():
         conn.close()
-        error_msg = "A vendég neve nem lehet üres."
+        error_msg = tr("empty_name", lang=lang)
     elif not guest_email or not EMAIL_REGEX.fullmatch(guest_email.strip()):
         conn.close()
-        error_msg = "Hibás vagy hiányzó email cím!"
+        error_msg = tr("invalid_email", lang=lang)
     elif not cleaned_phone or not PHONE_REGEX.match(cleaned_phone):
         conn.close()
-        error_msg = "Hibás telefonszám! Kérjük, adjon meg legalább 9 számjegyet, +, 00 vagy 07 előtaggal."
+        error_msg = tr("invalid_phone", lang=lang)
     else:
         error_msg = None
 
@@ -200,7 +200,7 @@ async def save_booking(
             "created_by_options": created_by_options,
             "original_id": original_id,
             "existing": bool(original_id),
-            "error": "Dátum formátuma hibás."
+            "error": tr("date_format_error", ", ".join(formatted_days), lang=lang)
         })
 
     if checkout_dt <= checkin_dt:
@@ -214,7 +214,7 @@ async def save_booking(
             "created_by_options": created_by_options,
             "original_id": original_id,
             "existing": bool(original_id),
-            "error": "Távozás nem lehet az érkezés előtt vagy azonos nap."
+            "error": tr("invalid_dates", ", ".join(formatted_days), lang=lang)
         })
 
     conflict_days = []
@@ -266,7 +266,7 @@ async def save_booking(
             "created_by_options": created_by_options,
             "original_id": original_id,
             "existing": bool(original_id),
-            "error": f"Ütközés: már van foglalás ezeken a napokon: {', '.join(formatted_days)}"
+            "error": tr("conflict", ", ".join(formatted_days), lang=lang)
         })
 
     now = datetime.now().isoformat(timespec='seconds')
