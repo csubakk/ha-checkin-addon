@@ -84,7 +84,10 @@ def calendar_page(request: Request):
     rows = []
     for d in days:
         iso = d.isoformat()
-        day_label = f"{d.year}. {HONAPOK[d.month]} {d.day}."
+        if os.getenv("HOST_LANGUAGE") == "ro":
+            day_label = f"{d.day} {HONAPOK[d.month]} {d.year}"
+        else:
+            day_label = f"{d.year}. {HONAPOK[d.month]} {d.day}."
         dow = NAPOK[d.weekday()]
         weekend = d.weekday() in [5, 6]
         is_today = (d == today)
