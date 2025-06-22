@@ -95,7 +95,11 @@ def send_checkin_link(booking_id: int):
         return False
 
     # Csak akkor küldjünk check-in linket, ha holnap az érkezés
-    checkin_date = datetime.strptime(row["checkin_time"], "%Y-%m-%d %H:%M:%S").date()
+    checkin_time_raw = row["checkin_time"]
+    try:
+        checkin_date = datetime.strptime(checkin_time_raw, "%Y-%m-%d %H:%M:%S").date()
+    except ValueError:
+        checkin_date = datetime.strptime(checkin_time_raw, "%Y-%m-%d").date()
     if checkin_date != (datetime.now().date() + timedelta(days=1)):
         print(f"[INFO] Nem küldünk check-in linket, mert az érkezés nem holnap: {checkin_date}")
         return False
