@@ -2,7 +2,7 @@
 <html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>{{ mode }}</title>
+    <title>{{ tr("title") }}</title>
     <style>
         body { font-family: sans-serif; margin: 2em; }
         label { display: block; margin-top: 1em; }
@@ -32,12 +32,12 @@
         <input type="hidden" name="existing" value="{{ '1' if existing else '' }}">
         <input type="hidden" name="original_id" value="{{ original_id }}">
 
-        <label>{{ tr["last_name"] }} <input name="guest_last_name" value="{{ guest.guest_last_name }}"></label>
-        <label>{{ tr["first_name"] }} <input name="guest_first_name" value="{{ guest.guest_first_name }}"></label>
-        <label>{{ tr["email"] }} <input name="guest_email" value="{{ guest.guest_email }}"></label>
-        <label>{{ tr["phone"] }} <input name="guest_phone" value="{{ guest.guest_phone }}"></label>
+        <label>{{ tr("last_name") }} <input name="guest_last_name" value="{{ guest.guest_last_name }}"></label>
+        <label>{{ tr("first_name") }} <input name="guest_first_name" value="{{ guest.guest_first_name }}"></label>
+        <label>{{ tr("email") }} <input name="guest_email" value="{{ guest.guest_email }}"></label>
+        <label>{{ tr("phone") }} <input name="guest_phone" value="{{ guest.guest_phone }}"></label>
 
-        <label>{{ tr["room"] }}
+        <label>{{ tr("room") }}
             <select name="guest_house_id">
                 {% for rid in guest_house_ids %}
                 <option value="{{ rid }}" {{ 'selected' if guest.guest_house_id == rid or guest.guest_house_id|string == rid else '' }}>{{ rid }}</option>
@@ -45,12 +45,12 @@
             </select>
         </label>
 
-        <label>{{ tr["arrival"] }} <input type="date" name="checkin_time" value="{{ guest.checkin_time }}"></label>
-        <label>{{ tr["departure"] }} <input type="date" name="checkout_time" value="{{ guest.checkout_time }}"></label>
-        <label>{{ tr["guest_count"] }} <input type="number" name="guest_count" value="{{ guest.guest_count }}"></label>
-        <label>{{ tr["notes"] }} <input name="notes" value="{{ guest.notes }}"></label>
+        <label>{{ tr("arrival") }} <input type="date" name="checkin_time" value="{{ guest.checkin_time }}"></label>
+        <label>{{ tr("departure") }} <input type="date" name="checkout_time" value="{{ guest.checkout_time }}"></label>
+        <label>{{ tr("guest_count") }} <input type="number" name="guest_count" value="{{ guest.guest_count }}"></label>
+        <label>{{ tr("notes") }} <input name="notes" value="{{ guest.notes }}"></label>
 
-        <label>{{ tr["created_by"] }}
+        <label>{{ tr("created_by") }}
             <select name="created_by">
                 {% for user in created_by_options %}
                 <option value="{{ user }}" {{ 'selected' if guest.created_by == user else '' }}>{{ user }}</option>
@@ -60,7 +60,7 @@
 
         <button type="submit">{{ button }}</button>
         {% if existing %}
-            <a href="/confirm_delete?booking_id={{ original_id }}" class="delete-button">{{ tr["delete"] }}</a>
+            <a href="/confirm_delete?booking_id={{ original_id }}" class="delete-button">{{ tr("delete") }}</a>
         {% endif %}
     </form>
 </body>
