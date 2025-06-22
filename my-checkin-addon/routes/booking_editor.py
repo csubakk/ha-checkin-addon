@@ -11,14 +11,14 @@ from services import notifications
 
 router = APIRouter()
 
-HA_URL = os.getenv("HA_URL")  # például: https://teszt.tapexpert.eu/api
+HA_URL = os.getenv("HA_URL")
 HA_TOKEN = os.getenv("HA_TOKEN")
 
 DB_PATH = "/config/guestbook.db"
 templates = Jinja2Templates(directory="/app/templates")
+
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
-PHONE_REGEX = re.compile(r"^(?:\+|00)?\d{9,15}$")
-HOUSE_IDS = ["1", "2"]
+PHONE_REGEX = re.compile(r"^(?:\+|00|07)\d{7,13}$")
 
 
 def get_input_select_options(entity_id: str):
@@ -28,6 +28,7 @@ def get_input_select_options(entity_id: str):
     if response.status_code == 200:
         return response.json().get("attributes", {}).get("options", [])
     return []
+
 
 def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     conn = sqlite3.connect(DB_PATH)
@@ -43,6 +44,7 @@ def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     conn.close()
     return dict(row) if row else None
 
+
 @router.get("/edit_booking", response_class=HTMLResponse)
 async def edit_booking(request: Request, date: str, house_id: str, error: str = ""):
     booking = get_booking_by_date_and_house(date, house_id)
@@ -50,7 +52,7 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
     default_checkout = (checkin_dt + timedelta(days=1)).date().isoformat()
     created_by_options = get_input_select_options("input_select.created_by")
     guest_house_ids = get_input_select_options("input_select.guest_house_id")
-    
+
     data = {
         "guest_first_name": "",
         "guest_last_name": "",
@@ -66,10 +68,10 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "guest_phone": "",
         "guest_count": 1,
         "notes": "",
-        "guest_house_id": guest_house_ids,
+        "guest_house_id": house_id,
         "checkin_time": date,
         "checkout_time": default_checkout,
-        "created_by": created_by_options,
+        "created_by": "",
         "id": ""
     }
     if booking:
@@ -110,6 +112,7 @@ async def confirm_delete(request: Request, booking_id: int):
         "checkout": booking["checkout_time"]
     })
 
+
 @router.post("/delete_booking")
 async def delete_booking(booking_id: int = Form(...)):
     conn = sqlite3.connect(DB_PATH)
@@ -148,20 +151,18 @@ async def save_booking(
 
     cleaned_phone = re.sub(r"[^\d\+]", "", guest_phone.strip())
 
+    guest_house_ids = get_input_select_options("input_select.guest_house_id")
+    created_by_options = get_input_select_options("input_select.created_by")
+
     if not guest_first_name.strip() or not guest_last_name.strip():
         conn.close()
         error_msg = "A vendég neve nem lehet üres."
     elif not guest_email or not EMAIL_REGEX.fullmatch(guest_email.strip()):
         conn.close()
         error_msg = "Hibás vagy hiányzó email cím!"
-#        with open("/config/debug.log", "a") as f:
-#            f.write(f"[DEBUG] Beérkezett email: '{guest_email}'\n")
     elif not cleaned_phone or not PHONE_REGEX.match(cleaned_phone):
         conn.close()
-        error_msg = "Hibás telefonszám! Kérjük, adjon meg legalább 9 számjegyet, + vagy 00 előtaggal."
-#        with open("/config/debug.log", "a") as f:
-#            f.write(f"[DEBUG] Beérkezett telefonszam: '{guest_phone.strip()}'\n")
-#            f.write(f"[DEBUG] Tisztitott telefonszam: '{cleaned_phone}'\n")
+        error_msg = "Hibás telefonszám! Kérjük, adjon meg legalább 9 számjegyet, +, 00 vagy 07 előtaggal."
     else:
         error_msg = None
 
@@ -211,7 +212,8 @@ async def save_booking(
             "guest": form_data,
             "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
             "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": HOUSE_IDS,
+            "guest_house_ids": guest_house_ids,
+            "created_by_options": created_by_options,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": "Dátum formátuma hibás."
@@ -224,7 +226,8 @@ async def save_booking(
             "guest": form_data,
             "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
             "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": HOUSE_IDS,
+            "guest_house_ids": guest_house_ids,
+            "created_by_options": created_by_options,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": "Távozás nem lehet az érkezés előtt vagy azonos nap."
@@ -283,7 +286,8 @@ async def save_booking(
             "guest": guest_data,
             "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
             "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": HOUSE_IDS,
+            "guest_house_ids": guest_house_ids,
+            "created_by_options": created_by_options,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": f"Ütközés: már van foglalás ezeken a napokon: {', '.join(formatted_days)}"
