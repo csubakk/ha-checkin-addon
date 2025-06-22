@@ -76,12 +76,12 @@ TRANSLATIONS = {
         "date_format_error": "Formatul datei este incorect.",
         "conflict": "Conflict: există deja rezervări în aceste zile: {}",
         "delete_title": "Ștergere rezervare",
-        "delete_warning": "Sigur vrei să ștergi?",
+        "delete_warning": "Sigur doriți să ștergeți această rezervare?",
         "guest": "Oaspete",
         "checkin": "Sosire",
         "checkout": "Plecare",
         "confirm_delete": "Da, șterg",
-        "cancel": "Cancel"
+        "cancel": "Renunță"
     },
 }
 
