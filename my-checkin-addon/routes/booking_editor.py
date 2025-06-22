@@ -306,8 +306,8 @@ async def save_booking(
             None, None, None, None, None, None,
             checkin_time, checkout_time, guest_count, notes, None,
             0, now, now, guest_email, guest_phone,
-            guest_house_id, access_token, created_by, None,  # ← access_email_sent_at
-            guest_lang  # ← lang mező
+            guest_house_id, access_token, created_by, None,
+            guest_lang
         ))
         booking_id = cursor.lastrowid
 
