@@ -8,6 +8,7 @@ import re
 import os
 import requests
 from services import notifications
+from translations.translations import get_translations
 
 router = APIRouter()
 
@@ -71,7 +72,9 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
             if key in booking:
                 data[key] = booking[key] or data[key]
         data["id"] = booking["id"]
-
+    
+    lang = os.getenv("HOST_LANGUAGE", "hu")
+    tr = get_translations(lang)
     return templates.TemplateResponse("edit_booking.html", {
         "request": request,
         "guest": data,
@@ -96,6 +99,8 @@ async def confirm_delete(request: Request, booking_id: int):
     if not booking:
         raise HTTPException(status_code=404, detail="Foglalás nem található.")
 
+    lang = os.getenv("HOST_LANGUAGE", "hu")
+    tr = get_translations(lang)
     return templates.TemplateResponse("confirm_delete.html", {
         "request": request,
         "booking_id": booking_id,
@@ -164,6 +169,9 @@ async def save_booking(
             "created_by": created_by,
             "id": original_id
         }
+        
+        lang = os.getenv("HOST_LANGUAGE", "hu")
+        tr = get_translations(lang)
         return templates.TemplateResponse("edit_booking.html", {
             "request": request,
             "guest": guest_data,
