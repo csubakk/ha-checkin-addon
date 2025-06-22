@@ -77,8 +77,8 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
     return templates.TemplateResponse("edit_booking.html", {
         "request": request,
         "guest": data,
-        "mode": "Foglalás szerkesztése" if booking else "Új foglalás",
-        "button": "Mentés" if booking else "Létrehozás",
+        "mode": tr("edit_booking") if booking else tr("new_booking"),
+        "button": tr("save") if booking else tr("create"),
         "guest_house_ids": guest_house_ids,
         "created_by_options": created_by_options,
         "original_id": data["id"],
