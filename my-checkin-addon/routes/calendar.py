@@ -88,7 +88,7 @@ def calendar_page(request: Request, start: str = "", lang: str = None):
 
         for rid in room_ids:
             guest = date_map.get(rid, {}).get(d, "")
-            cell = f"<a href='/edit_booking?date={iso}&house_id={rid}'>{guest or '·'}</a>"
+            cell = f"<a href='/edit_booking?date={iso}&house_id={rid}'>{guest or '---'}</a>"
             row += f"<td>{cell}</td>"
 
         row += "</tr>"
