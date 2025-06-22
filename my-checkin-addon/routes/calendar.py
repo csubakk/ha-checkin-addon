@@ -2,30 +2,20 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 import sqlite3
 import os
-import requests
 from datetime import datetime, timedelta
 from translations.translations import tr, get_translations, get_weekday_names, get_month_names
 
 router = APIRouter()
 DB_PATH = "/config/guestbook.db"
 
-HA_URL = os.getenv("HA_URL")  # például: https://teszt.tapexpert.eu/api
-HA_TOKEN = os.getenv("HA_TOKEN")
-
-# nyelvi konstansok most dinamikusan
-
-
 def get_guest_house_ids_from_ha():
-    import os
     import requests
-
     HA_URL = os.getenv("HA_URL", "http://homeassistant.local:8123")
     HA_TOKEN = os.getenv("HA_TOKEN", "")
     headers = {
         "Authorization": f"Bearer {HA_TOKEN}",
         "Content-Type": "application/json",
     }
-
     try:
         response = requests.get(f"{HA_URL}/states/input_select.guest_house_id", headers=headers, timeout=5)
         response.raise_for_status()
@@ -36,19 +26,21 @@ def get_guest_house_ids_from_ha():
         print("❌ Nem sikerült lekérni a szobaazonosítókat:", e)
         return ["1"]
 
-
 @router.get("/calendar", response_class=HTMLResponse)
-def calendar_page(request: Request):
-    tr = get_translations()
+def calendar_page(request: Request, start: str = "", lang: str = None):
+    tr_dict = get_translations(lang)
     room_ids = get_guest_house_ids_from_ha()
     multiple_rooms = len(room_ids) > 1
 
-    today = datetime.today().date()
-    start_date = today - timedelta(days=7)
-    end_date = today + timedelta(weeks=6)
-    days = [(start_date + timedelta(days=i)) for i in range((end_date - start_date).days + 1)]
+    # dátum paraméter értelmezése
+    try:
+        start_date = datetime.fromisoformat(start).date() if start else datetime.today().date() - timedelta(days=7)
+    except ValueError:
+        start_date = datetime.today().date() - timedelta(days=7)
 
-    # DB lekérdezés
+    end_date = start_date + timedelta(days=34)
+    days = [(start_date + timedelta(days=i)) for i in range(35)]
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -61,7 +53,6 @@ def calendar_page(request: Request):
     bookings = cursor.fetchall()
     conn.close()
 
-    # Foglalások rendezése szobánként és dátum szerint
     date_map = {rid: {} for rid in room_ids}
     for row in bookings:
         fname = row["guest_first_name"] or ""
@@ -71,20 +62,20 @@ def calendar_page(request: Request):
         try:
             checkin = datetime.fromisoformat(row["checkin_time"]).date()
             checkout = datetime.fromisoformat(row["checkout_time"]).date()
-            for d in range((checkout - checkin).days):  # kizárólag az ottalvós napokra
+            for d in range((checkout - checkin).days):
                 day = checkin + timedelta(days=d)
                 date_map[guest_house][day] = name
         except:
             continue
 
-    HONAPOK = tr["month_names"]
-    NAPOK = tr["weekday_names"]
+    HONAPOK = tr_dict["month_names"]
+    NAPOK = tr_dict["weekday_names"]
+    today = datetime.today().date()
 
-    # Táblázat építése
     rows = []
     for d in days:
         iso = d.isoformat()
-        if os.getenv("HOST_LANGUAGE") == "ro":
+        if lang == "ro":
             day_label = f"{d.day} {HONAPOK[d.month]} {d.year}"
         else:
             day_label = f"{d.year}. {HONAPOK[d.month]} {d.day}."
@@ -103,17 +94,19 @@ def calendar_page(request: Request):
         row += "</tr>"
         rows.append(row)
 
-    # HTML generálás
-    th_cells = f"<th>{tr['date']}</th><th>{tr['day']}</th>" + "".join(
-        f"<th>{tr['room'].format(rid)}</th>" for rid in room_ids)
+    prev_start = (start_date - timedelta(days=35)).isoformat()
+    next_start = (start_date + timedelta(days=35)).isoformat()
+
+    th_cells = f"<th>{tr_dict['date']}</th><th>{tr_dict['day']}</th>" + "".join(
+        f"<th>{tr_dict['room'].format(rid)}</th>" for rid in room_ids)
 
     table_html = f"""
     <!DOCTYPE html>
-    <html lang=\"hu\">
+    <html lang="{lang or 'hu'}">
     <head>
-        <meta charset=\"UTF-8\">
-        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-        <title>{tr['title']}</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{tr_dict['title']}</title>
         <style>
             body {{
                 font-family: sans-serif;
@@ -163,10 +156,10 @@ def calendar_page(request: Request):
         </style>
     </head>
     <body>
-        <h2>{tr['title']}</h2>
-        <div class=\"nav\">
-            <a href=\"#\">⬅️ {tr['back']}</a>
-            <a href=\"#\">{tr['forward']} ➡️</a>
+        <h2>{tr_dict['title']}</h2>
+        <div class="nav">
+            <a href="/calendar?start={prev_start}&lang={lang or 'hu'}">⬅️ {tr_dict['back']}</a>
+            <a href="/calendar?start={next_start}&lang={lang or 'hu'}">{tr_dict['forward']} ➡️</a>
         </div>
 
         <table>
@@ -180,5 +173,4 @@ def calendar_page(request: Request):
     </body>
     </html>
     """
-
     return HTMLResponse(content=table_html)
