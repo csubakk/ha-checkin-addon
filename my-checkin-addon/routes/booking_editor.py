@@ -134,7 +134,7 @@ async def save_booking(
     if not guest_first_name.strip() or not guest_last_name.strip():
         conn.close()
         error_msg = "A vendég neve nem lehet üres."
-    elif not guest_email or not EMAIL_REGEX.match(guest_email):
+    elif not guest_email or not EMAIL_REGEX.fullmatch(guest_email.strip()):
         conn.close()
         error_msg = "Hibás vagy hiányzó email cím!"
     elif not cleaned_phone or not PHONE_REGEX.match(cleaned_phone):
