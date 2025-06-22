@@ -191,7 +191,8 @@ async def save_booking(
             "guest": guest_data,
             "mode": "Foglalás szerkesztése" if original_id else "Új foglalás",
             "button": "Mentés" if original_id else "Létrehozás",
-            "guest_house_ids": HOUSE_IDS,
+            "guest_house_ids": guest_house_ids,
+            "created_by_options": created_by_options,
             "original_id": original_id,
             "existing": bool(original_id),
             "error": error_msg
