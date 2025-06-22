@@ -7,8 +7,8 @@ HOST_LANGUAGE = os.getenv("HOST_LANGUAGE", "hu")
 TRANSLATIONS = {
     "hu": {
         "title": "Foglalási naptár",
-        "back": "⬅️ Vissza",
-        "forward": "Előre ➡️",
+        "back": "Vissza",
+        "forward": "Előre",
         "date": "Dátum",
         "day": "Nap",
         "room": "{}. szoba",
@@ -18,8 +18,8 @@ TRANSLATIONS = {
     },
     "ro": {
         "title": "Calendar rezervări",
-        "back": "⬅️ Înapoi",
-        "forward": "Înainte ➡️",
+        "back": "Înapoi",
+        "forward": "Înainte",
         "date": "Dată",
         "day": "Zi",
         "room": "Camera {}",
