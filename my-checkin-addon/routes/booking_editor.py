@@ -135,7 +135,8 @@ async def save_booking(
     checkout_time: str = Form(...),
     created_by: str = Form(""),
     original_id: str = Form(""),
-    lang: str = Form("hu")
+    lang: str = Form("hu"),
+    guest_lang: str = Form("en")
 ):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -283,12 +284,12 @@ async def save_booking(
             UPDATE guest_bookings SET
                 guest_first_name = ?, guest_last_name = ?, guest_email = ?, guest_phone = ?,
                 guest_count = ?, notes = ?, guest_house_id = ?, checkin_time = ?, checkout_time = ?,
-                created_by = ?, updated_at = datetime('now')
+                created_by = ?, lang = ?, updated_at = datetime('now')
             WHERE id = ?
         """, (
             guest_first_name, guest_last_name, guest_email, guest_phone,
             guest_count, notes, guest_house_id, checkin_time, checkout_time,
-            created_by, original_id
+            created_by, guest_lang, original_id
         ))
         booking_id = original_id
     else:
@@ -298,14 +299,17 @@ async def save_booking(
                 document_type, document_number, cnp, address, travel_purpose, signature,
                 checkin_time, checkout_time, guest_count, notes, checkin_email_sent_at,
                 checkout_completed, created_at, updated_at, guest_email, guest_phone,
-                guest_house_id, access_token, created_by, access_email_sent_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                guest_house_id, access_token, created_by, access_email_sent_at,
+                lang
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                ?)
         """, (
             guest_first_name, guest_last_name, None, None, None,
             None, None, None, None, None, None,
             checkin_time, checkout_time, guest_count, notes, None,
             0, now, now, guest_email, guest_phone,
-            guest_house_id, access_token, created_by, None
+            guest_house_id, access_token, created_by, None,
+            guest_lang
         ))
         booking_id = cursor.lastrowid
 
