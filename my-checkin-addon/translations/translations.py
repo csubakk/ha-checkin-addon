@@ -42,7 +42,8 @@ TRANSLATIONS = {
         "checkin": "Érkezés",
         "checkout": "Távozás",
         "confirm_delete": "Igen, törlöm",
-        "cancel": "Mégse"
+        "cancel": "Mégse",
+        "home": "Ma",
     },
     "ro": {
         "title": "Calendar rezervări",
@@ -81,7 +82,8 @@ TRANSLATIONS = {
         "checkin": "Sosire",
         "checkout": "Plecare",
         "confirm_delete": "Da, șterg",
-        "cancel": "Renunță"
+        "cancel": "Renunță",
+        "home": "Acasă",
     },
 }
 
