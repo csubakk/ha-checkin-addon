@@ -35,7 +35,7 @@ TRANSLATIONS = {
         "empty_name": "A vendég neve nem lehet üres.",
         "invalid_dates": "Távozás nem lehet az érkezés előtt vagy azonos nap.",
         "date_format_error": "Dátum formátuma hibás.",
-        "conflict": "Ütközés: már van foglalás ezeken a napokon: {}"
+        "conflict": "Ütközés: már van foglalás ezeken a napokon: {}",
         "delete_title": "Foglalás törlése",
         "delete_warning": "Biztosan törlöd ezt a foglalást?",
         "guest": "Vendég",
@@ -74,7 +74,7 @@ TRANSLATIONS = {
         "empty_name": "Numele oaspetelui nu poate fi gol.",
         "invalid_dates": "Plecarea nu poate fi înainte sau în aceeași zi cu sosirea.",
         "date_format_error": "Formatul datei este incorect.",
-        "conflict": "Conflict: există deja rezervări în aceste zile: {}"
+        "conflict": "Conflict: există deja rezervări în aceste zile: {}",
         "delete_title": "Ștergere rezervare",
         "delete_warning": "Sigur vrei să ștergi?",
         "guest": "Oaspete",
