@@ -56,14 +56,6 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
     data = {
         "guest_first_name": "",
         "guest_last_name": "",
-        "birth_date": "",
-        "birth_place": "",
-        "nationality": "",
-        "document_type": "",
-        "document_number": "",
-        "cnp": "",
-        "address": "",
-        "travel_purpose": "",
         "guest_email": "",
         "guest_phone": "",
         "guest_count": 1,
@@ -127,14 +119,6 @@ async def save_booking(
     request: Request,
     guest_first_name: str = Form(...),
     guest_last_name: str = Form(...),
-    birth_date: str = Form(""),
-    birth_place: str = Form(""),
-    nationality: str = Form(""),
-    document_type: str = Form(""),
-    document_number: str = Form(""),
-    cnp: str = Form(""),
-    address: str = Form(""),
-    travel_purpose: str = Form(""),
     guest_email: str = Form(""),
     guest_phone: str = Form(""),
     guest_count: int = Form(1),
@@ -170,14 +154,6 @@ async def save_booking(
         guest_data = {
             "guest_first_name": guest_first_name,
             "guest_last_name": guest_last_name,
-            "birth_date": birth_date,
-            "birth_place": birth_place,
-            "nationality": nationality,
-            "document_type": document_type,
-            "document_number": document_number,
-            "cnp": cnp,
-            "address": address,
-            "travel_purpose": travel_purpose,
             "guest_email": guest_email,
             "guest_phone": guest_phone,
             "guest_count": guest_count,
@@ -262,14 +238,6 @@ async def save_booking(
         guest_data = {
             "guest_first_name": guest_first_name,
             "guest_last_name": guest_last_name,
-            "birth_date": birth_date,
-            "birth_place": birth_place,
-            "nationality": nationality,
-            "document_type": document_type,
-            "document_number": document_number,
-            "cnp": cnp,
-            "address": address,
-            "travel_purpose": travel_purpose,
             "guest_email": guest_email,
             "guest_phone": guest_phone,
             "guest_count": guest_count,
@@ -299,33 +267,27 @@ async def save_booking(
     if original_id:
         cursor.execute("""
             UPDATE guest_bookings SET
-                guest_first_name = ?, guest_last_name = ?, birth_date = ?, birth_place = ?,
-                nationality = ?, document_type = ?, document_number = ?, cnp = ?, address = ?,
-                travel_purpose = ?, guest_email = ?, guest_phone = ?, guest_count = ?,
-                notes = ?, guest_house_id = ?, checkin_time = ?, checkout_time = ?,
+                guest_first_name = ?, guest_last_name = ?, guest_email = ?, guest_phone = ?,
+                guest_count = ?, notes = ?, guest_house_id = ?, checkin_time = ?, checkout_time = ?,
                 created_by = ?, updated_at = datetime('now')
             WHERE id = ?
         """, (
-            guest_first_name, guest_last_name, birth_date, birth_place, nationality,
-            document_type, document_number, cnp, address, travel_purpose,
-            guest_email, guest_phone, guest_count, notes, guest_house_id,
-            checkin_time, checkout_time, created_by, original_id
+            guest_first_name, guest_last_name, guest_email, guest_phone,
+            guest_count, notes, guest_house_id, checkin_time, checkout_time,
+            created_by, original_id
         ))
         booking_id = original_id
     else:
         cursor.execute("""
             INSERT INTO guest_bookings (
-                guest_first_name, guest_last_name, birth_date, birth_place,
-                nationality, document_type, document_number, cnp,
-                address, travel_purpose, guest_email, guest_phone,
+                guest_first_name, guest_last_name, guest_email, guest_phone,
                 guest_count, notes, guest_house_id,
                 checkin_time, checkout_time, created_by,
                 created_at, updated_at, access_token
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            guest_first_name, guest_last_name, birth_date, birth_place, nationality,
-            document_type, document_number, cnp, address, travel_purpose,
-            guest_email, guest_phone, guest_count, notes, guest_house_id,
+            guest_first_name, guest_last_name, guest_email, guest_phone,
+            guest_count, notes, guest_house_id,
             checkin_time, checkout_time, created_by,
             now, now, access_token
         ))
