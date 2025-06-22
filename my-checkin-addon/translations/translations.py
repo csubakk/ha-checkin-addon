@@ -51,13 +51,13 @@ TRANSLATIONS = {
     },
 }
 
-def get_translations():
-    lang = os.getenv("HOST_LANGUAGE", "hu")
+def get_translations(lang=None):
+    lang = lang or os.getenv("HOST_LANGUAGE", "hu")
     return TRANSLATIONS.get(lang, TRANSLATIONS["hu"])
 
-def tr(key, *args):
-    lang = HOST_LANGUAGE if HOST_LANGUAGE in TRANSLATIONS else "hu"
-    text = TRANSLATIONS[lang].get(key, key)
+def tr(key, *args, lang=None):
+    translations = get_translations(lang)
+    text = translations.get(key, key)
     if args:
         try:
             return text.format(*args)
