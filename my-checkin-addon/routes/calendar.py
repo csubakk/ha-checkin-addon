@@ -41,7 +41,7 @@ def get_guest_house_ids_from_ha():
         return ["1"]
 
 @router.get("/calendar", response_class=HTMLResponse)
-def calendar_page(request: Request, start: str = "", lang: str = None, token: str = None):
+async def calendar_page(request: Request, start: str = "", lang: str = None, token: str = None):
     owner_token = await get_owner_token()
     if token != owner_token:
         raise HTTPException(status_code=403, detail="Invalid token")
