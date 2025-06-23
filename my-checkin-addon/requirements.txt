@@ -8,4 +8,3 @@ reportlab
 pillow
 ics==0.7.2
 jinja2
-httpx
