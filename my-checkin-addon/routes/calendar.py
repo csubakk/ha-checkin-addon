@@ -92,7 +92,10 @@ def calendar_page(request: Request, start: str = "", lang: str = None, token: st
 
         for rid in room_ids:
             guest = date_map.get(rid, {}).get(d, "")
-            cell = f"<a href='/edit_booking?date={iso}&house_id={rid}&token={token}'>{guest or '---'}</a>"
+            if d < today and not guest:
+                cell = ""
+            else:
+                cell = f"<a href='/edit_booking?date={iso}&house_id={rid}&token={token}'>{guest or '---'}</a>"
             row += f"<td>{cell}</td>"
 
         row += "</tr>"
