@@ -74,8 +74,9 @@
 
         <form action="/delete_booking" method="post">
             <input type="hidden" name="booking_id" value="{{ booking_id }}">
+            <input type="hidden" name="token" value="{{ token }}">
             <button type="submit" class="delete-btn">{{ tr("confirm_delete", lang=lang) }}</button>
-            <a href="/calendar" class="cancel-link">{{ tr("cancel", lang=lang) }}</a>
+            <a href="/calendar?token={{ token }}" class="cancel-link">{{ tr("cancel", lang=lang) }}</a>
         </form>
     </div>
 </body>
