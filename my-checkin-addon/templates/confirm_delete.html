@@ -3,35 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ tr("delete_title", lang=lang) }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; margin: 2em; }
-        .warning { color: red; font-weight: bold; font-size: 1.2em; }
+        body {
+            font-family: sans-serif;
+            background-color: #e6f4ea;
+            margin: 0;
+            padding: 1em;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            padding: 1.5em;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 1em;
+        }
+        p {
+            margin: 0.5em 0;
+        }
+        form {
+            margin-top: 2em;
+            display: flex;
+            gap: 1em;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
         button, a {
-            margin-top: 1em;
-            padding: 0.5em 1em;
+            padding: 0.6em 1.4em;
+            font-size: 1em;
+            border-radius: 6px;
             text-decoration: none;
-            display: inline-block;
+            font-weight: bold;
+            text-align: center;
+            flex: 1;
+            min-width: 40%;
+            max-width: 45%;
+            white-space: nowrap;
+            box-sizing: border-box;
         }
         .delete-btn {
-            background: red;
+            background: #dc3545;
             color: white;
             border: none;
         }
         .cancel-link {
-            margin-left: 1em;
+            background: #6c757d;
+            color: white;
+        }
+        @media (max-width: 600px) {
+            button, a {
+                flex: 100%;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="warning">{{ tr("delete_warning", lang=lang) }}</div>
-    <p><strong>{{ tr("guest", lang=lang) }}:</strong> {{ guest_name }}</p>
-    <p><strong>{{ tr("checkin", lang=lang) }}:</strong> {{ checkin }}</p>
-    <p><strong>{{ tr("checkout", lang=lang) }}:</strong> {{ checkout }}</p>
+    <div class="container">
+        <div class="warning">{{ tr("delete_warning", lang=lang) }}</div>
+        <p><strong>{{ tr("guest", lang=lang) }}:</strong> {{ guest_name }}</p>
+        <p><strong>{{ tr("checkin", lang=lang) }}:</strong> {{ checkin }}</p>
+        <p><strong>{{ tr("checkout", lang=lang) }}:</strong> {{ checkout }}</p>
 
-    <form action="/delete_booking" method="post">
-        <input type="hidden" name="booking_id" value="{{ booking_id }}">
-        <button type="submit" class="delete-btn">{{ tr("confirm_delete", lang=lang) }}</button>
-        <a href="/calendar" class="cancel-link">{{ tr("cancel", lang=lang) }}</a>
-    </form>
+        <form action="/delete_booking" method="post">
+            <input type="hidden" name="booking_id" value="{{ booking_id }}">
+            <button type="submit" class="delete-btn">{{ tr("confirm_delete", lang=lang) }}</button>
+            <a href="/calendar" class="cancel-link">{{ tr("cancel", lang=lang) }}</a>
+        </form>
+    </div>
 </body>
 </html>
