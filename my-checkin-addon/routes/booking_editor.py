@@ -24,15 +24,6 @@ templates = Jinja2Templates(directory="/app/templates")
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 PHONE_REGEX = re.compile(r"^(?:\+|00|07)\d{7,13}$")
 
-async def get_owner_token():
-    async with httpx.AsyncClient(timeout=5.0) as client:
-        response = await client.get(
-            f"{HA_URL}/states/input_text.owner_token",
-            headers={"Authorization": f"Bearer {HA_TOKEN}"}
-        )
-        response.raise_for_status()
-        return response.json()["state"]
-
 def get_input_select_options(entity_id: str):
     url = f"{HA_URL}/states/{entity_id}"
     headers = {"Authorization": f"Bearer {HA_TOKEN}"}
