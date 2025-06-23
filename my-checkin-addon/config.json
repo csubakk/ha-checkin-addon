@@ -1,7 +1,7 @@
 {
   "name": "Check-in Backend",
   "version": "1.1",
-  "slug": "checkin",
+  "slug": "tapexpert_checkin",
   "description": "PRIVATE - Vendég check-in backend FastAPI-val",
   "startup": "application",
   "boot": "auto",
