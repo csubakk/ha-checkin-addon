@@ -14,7 +14,7 @@ from reportlab.lib.colors import HexColor
 from checkin_meta_api import router as meta_router
 from services import notifications as email_notifications
 from routes import calendar, booking_editor, notifications as api_notifications
-# from routes.token_api import token_api
+from routes.token_api import token_api
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -70,7 +70,7 @@ app.include_router(meta_router)
 app.include_router(calendar.router)
 app.include_router(booking_editor.router)
 app.include_router(api_notifications.router)
-# app.include_router(token_api)
+app.include_router(token_api)
 
 app.add_middleware(
     CORSMiddleware,
