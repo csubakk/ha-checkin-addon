@@ -137,14 +137,14 @@
         <option value="en" {{ 'selected' if guest.lang == 'en' or not guest.lang else '' }}>english</option>
     </select>
 
-    <div class="button-group">
-        <button type="submit" class="submit-button">{{ tr(button) }}</button>
+<div class="button-group">
+    <button type="submit" class="submit-button">{{ tr(button) }}</button>
 
-        {% if existing %}
-            <a href="/confirm_delete?booking_id={{ original_id }}" class="delete-button">{{ tr("delete") }}</a>
-            <a href="/calendar" class="back-button">{{ tr("back") }}</a>
-        {% endif %}
-    </div>
+    {% if existing %}
+        <a href="/confirm_delete?booking_id={{ original_id }}" class="delete-button">{{ tr("delete") }}</a>
+        <a href="/calendar" class="back-button">{{ tr("back") }}</a>
+    {% endif %}
+</div>
 </form>
         
     </div>
