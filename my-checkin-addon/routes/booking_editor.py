@@ -220,6 +220,38 @@ async def save_booking(
             "tr": tr
         })
 
+    
+    # ✅ Múltbéli check-in tiltása
+    if checkin_dt.date() < datetime.now().date():
+        guest_data = {
+            "guest_first_name": guest_first_name,
+            "guest_last_name": guest_last_name,
+            "guest_email": guest_email,
+            "guest_phone": guest_phone,
+            "guest_count": guest_count,
+            "notes": notes,
+            "guest_house_id": guest_house_id,
+            "checkin_time": checkin_time,
+            "checkout_time": checkout_time,
+            "created_by": created_by,
+            "id": original_id
+        }
+
+        return templates.TemplateResponse("edit_booking.html", {
+            "request": request,
+            "guest": guest_data,
+            "mode": tr("edit_booking", lang=lang) if original_id else tr("new_booking", lang=lang),
+            "button": tr("save", lang=lang) if original_id else tr("create", lang=lang),
+            "guest_house_ids": guest_house_ids,
+            "created_by_options": created_by_options,
+            "original_id": original_id,
+            "lang": lang,
+            "existing": bool(original_id),
+            "error": tr("checkin_past_error", lang=lang),
+            "token": token,
+            "tr": tr
+        })
+    
     if checkout_dt <= checkin_dt:
         form_data = await request.form()
         return templates.TemplateResponse("edit_booking.html", {
