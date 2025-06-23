@@ -118,6 +118,7 @@ def calendar_page(request: Request, start: str = "", lang: str = None):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="refresh" content="300">
         <title>{tr_dict['title']}</title>
         <style>
             body {{
