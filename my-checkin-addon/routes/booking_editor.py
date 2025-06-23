@@ -206,7 +206,8 @@ async def save_booking(
             "lang": lang,
             "original_id": original_id,
             "existing": bool(original_id),
-            "error": tr("date_format_error", ", ".join(formatted_days), lang=lang)
+            "error": tr("date_format_error", ", ".join(formatted_days), lang=lang),
+            "tr": tr
         })
 
     if checkout_dt <= checkin_dt:
@@ -221,7 +222,8 @@ async def save_booking(
             "original_id": original_id,
             "lang": lang,
             "existing": bool(original_id),
-            "error": tr("invalid_dates", ", ".join(formatted_days), lang=lang)
+            "error": tr("invalid_dates", ", ".join(formatted_days), lang=lang),
+            "tr": tr
         })
 
     conflict_days = []
@@ -274,7 +276,8 @@ async def save_booking(
             "original_id": original_id,
             "lang": lang,
             "existing": bool(original_id),
-            "error": tr("conflict", ", ".join(formatted_days), lang=lang)
+            "error": tr("conflict", ", ".join(formatted_days), lang=lang),
+            "tr": tr
         })
 
     now = datetime.now().isoformat(timespec='seconds')
