@@ -1,5 +1,4 @@
-#calendar.py
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
 import sqlite3
 import os
@@ -8,6 +7,8 @@ from translations.translations import tr, get_translations, get_weekday_names, g
 
 router = APIRouter()
 DB_PATH = "/config/guestbook.db"
+
+OWNER_TOKEN = os.getenv("OWNER_TOKEN", "1234")
 
 def get_guest_house_ids_from_ha():
     import requests
@@ -28,12 +29,14 @@ def get_guest_house_ids_from_ha():
         return ["1"]
 
 @router.get("/calendar", response_class=HTMLResponse)
-def calendar_page(request: Request, start: str = "", lang: str = None):
+def calendar_page(request: Request, start: str = "", lang: str = None, token: str = None):
+    if token != OWNER_TOKEN:
+        raise HTTPException(status_code=403, detail="Invalid or missing token")
+
     tr_dict = get_translations(lang)
     room_ids = get_guest_house_ids_from_ha()
     multiple_rooms = len(room_ids) > 1
 
-    # dátum paraméter értelmezése
     try:
         start_date = datetime.fromisoformat(start).date() if start else datetime.today().date() - timedelta(days=7)
     except ValueError:
@@ -89,25 +92,25 @@ def calendar_page(request: Request, start: str = "", lang: str = None):
 
         for rid in room_ids:
             guest = date_map.get(rid, {}).get(d, "")
-            cell = f"<a href='/edit_booking?date={iso}&house_id={rid}'>{guest or '---'}</a>"
+            cell = f"<a href='/edit_booking?date={iso}&house_id={rid}&token={token}'>{guest or '---'}</a>"
             row += f"<td>{cell}</td>"
 
         row += "</tr>"
         rows.append(row)
 
-        prev_start = (start_date - timedelta(days=35)).isoformat()
-        next_start = (start_date + timedelta(days=35)).isoformat()
-        today_start = (datetime.today().date() - timedelta(days=7)).isoformat()
+    prev_start = (start_date - timedelta(days=35)).isoformat()
+    next_start = (start_date + timedelta(days=35)).isoformat()
+    today_start = (datetime.today().date() - timedelta(days=7)).isoformat()
+    lang_param = f"&lang={lang}" if lang else ""
+    token_param = f"&token={token}" if token else ""
 
-        lang_param = f"&lang={lang}" if lang else ""
-
-        nav_html = f"""
-            <div class="nav">
-                <a href="/calendar?start={prev_start}{lang_param}">⬅️ {tr_dict['back']}</a>
-                <a href="/calendar?start={today_start}{lang_param}">🏠 {tr_dict.get('home', 'Ma')}</a>
-                <a href="/calendar?start={next_start}{lang_param}">{tr_dict['forward']} ➡️</a>
-            </div>
-        """
+    nav_html = f"""
+        <div class="nav">
+            <a href="/calendar?start={prev_start}{lang_param}{token_param}">⬅️ {tr_dict['back']}</a>
+            <a href="/calendar?start={today_start}{lang_param}{token_param}">🏠 {tr_dict.get('home', 'Ma')}</a>
+            <a href="/calendar?start={next_start}{lang_param}{token_param}">{tr_dict['forward']} ➡️</a>
+        </div>
+    """
 
     th_cells = f"<th>{tr_dict['date']}</th><th>{tr_dict['day']}</th>" + "".join(
         f"<th>{tr_dict['room'].format(rid)}</th>" for rid in room_ids)
@@ -121,63 +124,26 @@ def calendar_page(request: Request, start: str = "", lang: str = None):
         <meta http-equiv="refresh" content="300">
         <title>{tr_dict['title']}</title>
         <style>
-            body {{
-                font-family: sans-serif;
-                margin: 20px;
-                font-size: 1em;
-            }}
-            table {{
-                border-collapse: collapse;
-                width: 100%;
-                table-layout: fixed;
-            }}
-            th, td {{
-                padding: 6px 8px;
-                border: 1px solid #ccc;
-                text-align: left;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }}
+            body {{ font-family: sans-serif; margin: 20px; font-size: 1em; }}
+            table {{ border-collapse: collapse; width: 100%; table-layout: fixed; }}
+            th, td {{ padding: 6px 8px; border: 1px solid #ccc; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
             th:nth-child(1), td:nth-child(1) {{ width: 9em; }}
             th:nth-child(2), td:nth-child(2) {{ width: 3em; text-align: center; }}
             tr.weekend {{ background-color: #e0f5e0; }}
             tr.today {{ background-color: #ffe0e0; font-weight: bold; }}
-            .nav {{
-                margin: 10px 0;
-            }}
-            .nav a {{
-                text-decoration: none;
-                margin-right: 10px;
-                background: #eee;
-                padding: 5px 10px;
-                border-radius: 4px;
-                color: black;
-            }}
-            a {{
-                color: black;
-                text-decoration: none;
-            }}
-            a:hover {{
-                text-decoration: underline;
-            }}
-            @media (max-width: 600px) {{
-                body {{ font-size: 1.0em; }}
-                th, td {{ padding: 6px 6px; }}
-                td a {{ font-size: 0.95em; }}
-            }}
+            .nav {{ margin: 10px 0; }}
+            .nav a {{ text-decoration: none; margin-right: 10px; background: #eee; padding: 5px 10px; border-radius: 4px; color: black; }}
+            a {{ color: black; text-decoration: none; }}
+            a:hover {{ text-decoration: underline; }}
+            @media (max-width: 600px) {{ body {{ font-size: 1.0em; }} th, td {{ padding: 6px 6px; }} td a {{ font-size: 0.95em; }} }}
         </style>
     </head>
     <body>
         <h2>{tr_dict['title']}</h2>
         {nav_html}
         <table>
-            <thead>
-                <tr>{th_cells}</tr>
-            </thead>
-            <tbody>
-                {"".join(rows)}
-            </tbody>
+            <thead><tr>{th_cells}</tr></thead>
+            <tbody>{"".join(rows)}</tbody>
         </table>
     </body>
     </html>
