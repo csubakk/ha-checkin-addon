@@ -16,6 +16,7 @@ router = APIRouter()
 HA_URL = os.getenv("HA_URL")
 HA_TOKEN = os.getenv("HA_TOKEN")
 lang = os.getenv("HOST_LANGUAGE", "hu")
+OWNER_TOKEN = os.getenv("OWNER_TOKEN")
 
 DB_PATH = "/config/guestbook.db"
 templates = Jinja2Templates(directory="/app/templates")
@@ -48,7 +49,7 @@ def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
 
 @router.get("/edit_booking", response_class=HTMLResponse)
 async def edit_booking(request: Request, date: str, house_id: str, token: str = "", error: str = ""):
-    owner_token = await get_owner_token()
+    owner_token = OWNER_TOKEN
     if token != owner_token:
         raise HTTPException(status_code=403, detail="Invalid token")
     booking = get_booking_by_date_and_house(date, house_id)
@@ -94,7 +95,7 @@ async def edit_booking(request: Request, date: str, house_id: str, token: str = 
 
 @router.get("/confirm_delete", response_class=HTMLResponse)
 async def confirm_delete(request: Request, booking_id: int, token: str = ""):
-    owner_token = await get_owner_token()
+    owner_token = OWNER_TOKEN
     if token != owner_token:
         raise HTTPException(status_code=403, detail="Invalid token")
     conn = sqlite3.connect(DB_PATH)
@@ -121,7 +122,7 @@ async def confirm_delete(request: Request, booking_id: int, token: str = ""):
 
 @router.post("/delete_booking")
 async def delete_booking(booking_id: int = Form(...), token: str = Form(...)):
-    owner_token = await get_owner_token()
+    owner_token = OWNER_TOKEN
     if token != owner_token:
         raise HTTPException(status_code=403, detail="Invalid token")
     conn = sqlite3.connect(DB_PATH)
