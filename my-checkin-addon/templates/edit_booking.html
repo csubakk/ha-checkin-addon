@@ -133,7 +133,7 @@
         {% endfor %}
     </select>
 
-    <label for="lang">{{ tr("language") }}</label>
+    <label for="lang">{{ tr("guest_language") }}</label>
     <select id="lang" name="guest_lang">
         <option value="hu" {{ 'selected' if guest.lang == 'hu' else '' }}>magyar</option>
         <option value="ro" {{ 'selected' if guest.lang == 'ro' else '' }}>română</option>
