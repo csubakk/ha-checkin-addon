@@ -2,13 +2,25 @@ from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
 import sqlite3
 import os
+import httpx
 from datetime import datetime, timedelta
 from translations.translations import tr, get_translations, get_weekday_names, get_month_names
 
 router = APIRouter()
 DB_PATH = "/config/guestbook.db"
 
-OWNER_TOKEN = os.getenv("OWNER_TOKEN", "1234")
+
+HA_URL = os.getenv("HA_URL", "http://homeassistant.local:8123")
+HA_TOKEN = os.getenv("HA_TOKEN", "")
+
+async def get_owner_token():
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        response = await client.get(
+            f"{HA_URL}/states/input_text.owner_token",
+            headers={"Authorization": f"Bearer {HA_TOKEN}"}
+        )
+        response.raise_for_status()
+        return response.json()["state"]
 
 def get_guest_house_ids_from_ha():
     import requests
@@ -30,8 +42,9 @@ def get_guest_house_ids_from_ha():
 
 @router.get("/calendar", response_class=HTMLResponse)
 def calendar_page(request: Request, start: str = "", lang: str = None, token: str = None):
-    if token != OWNER_TOKEN:
-        raise HTTPException(status_code=403, detail="Invalid or missing token")
+    owner_token = await get_owner_token()
+    if token != owner_token:
+        raise HTTPException(status_code=403, detail="Invalid token")
 
     tr_dict = get_translations(lang)
     room_ids = get_guest_house_ids_from_ha()
