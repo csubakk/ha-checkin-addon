@@ -45,6 +45,7 @@ TRANSLATIONS = {
         "confirm_delete": "Igen, törlöm",
         "cancel": "Mégse",
         "home": "Ma",
+        "checkin_past_error": "A bejelentkezés nem lehet múltbéli dátum.",
         "guest_language": "Vendég nyelve"
     },
     "ro": {
@@ -87,6 +88,7 @@ TRANSLATIONS = {
         "confirm_delete": "Da, șterg",
         "cancel": "Renunță",
         "home": "Acasă",
+        "checkin_past_error": "Data sosirii nu poate fi în trecut.",
         "guest_language": "Limba oaspetelui"
     },
 }
