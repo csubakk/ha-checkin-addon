@@ -112,7 +112,7 @@ async def calendar_page(request: Request, start: str = "", lang: str = None, tok
     token_param = f"&token={token}" if token else ""
 
     nav_html = f"""
-        <div class="nav">
+        <div class="nav" style="text-align: center;">
             <a href="/calendar?start={prev_start}{lang_param}{token_param}">⬅️ {tr_dict['back']}</a>
             <a href="/calendar?start={today_start}{lang_param}{token_param}">🏠 {tr_dict.get('home', 'Ma')}</a>
             <a href="/calendar?start={next_start}{lang_param}{token_param}">{tr_dict['forward']} ➡️</a>
@@ -152,6 +152,7 @@ async def calendar_page(request: Request, start: str = "", lang: str = None, tok
             <thead><tr>{th_cells}</tr></thead>
             <tbody>{"".join(rows)}</tbody>
         </table>
+    {nav_html}
     </body>
     </html>
     """
