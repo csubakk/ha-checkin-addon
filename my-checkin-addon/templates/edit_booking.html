@@ -1,30 +1,25 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ tr(mode) }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: sans-serif;
-            background: #f9f9f9;
+            background-color: #f7f7f7;
             margin: 0;
-            padding: 2em;
-            display: flex;
-            justify-content: center;
+            padding: 1em;
         }
-        .form-container {
-            background: white;
-            padding: 2em;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 500px;
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            padding: 1.5em;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         h2 {
-            margin-top: 0;
-            margin-bottom: 1em;
-            font-size: 1.4em;
             text-align: center;
         }
         label {
@@ -32,128 +27,114 @@
             margin-top: 1em;
             font-weight: bold;
         }
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 0.6em;
+            margin-top: 0.3em;
             font-size: 1em;
-            box-sizing: border-box;
+            border-radius: 6px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            box-sizing: border-box;
         }
-        .error {
-            color: red;
-            margin-bottom: 1em;
+        input[type="date"] {
+            font-size: 1em;
         }
         .button-group {
             display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 1.5em;
             gap: 1em;
-            margin-top: 2em;
-            justify-content: center;
         }
-        .submit-button,
-        .delete-button {
-            padding: 0.6em 1.4em;
-            font-size: 1em;
+        .submit-button {
+            background-color: #007bff;
+            color: white;
             border: none;
             border-radius: 6px;
             font-weight: bold;
-            text-align: center;
+            font-size: 1em;
+            padding: 0.6em 1.4em;
             flex: 1;
             min-width: 40%;
         }
-        .submit-button {
-            background-color: #007BFF;
-            color: white;
-        }
         .delete-button {
-            background-color: red;
+            background-color: #dc3545;
             color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1em;
+            padding: 0.6em 1.4em;
+            text-align: center;
             text-decoration: none;
+            flex: 1;
+            min-width: 40%;
         }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 1em;
-            }
-            .form-container {
-                padding: 1em;
-            }
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1em;
+            padding: 0.6em 1.4em;
+            flex: 1;
+            min-width: 40%;
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
+    <div class="container">
         <h2>{{ tr(mode) }}</h2>
+        <form method="post">
+            <label for="first_name">{{ tr("first_name") }}</label>
+            <input type="text" id="first_name" name="first_name" value="{{ booking.first_name }}">
 
-        {% if error %}
-        <div class="error">{{ error }}</div>
-        {% endif %}
+            <label for="email">{{ tr("email") }}</label>
+            <input type="email" id="email" name="email" value="{{ booking.email }}">
 
-        <form action="/save_booking" method="post">
-            <input type="hidden" name="existing" value="{{ '1' if existing else '' }}">
-            <input type="hidden" name="lang" value="{{ lang }}">
-            <input type="hidden" name="original_id" value="{{ original_id }}">
+            <label for="phone">{{ tr("phone") }}</label>
+            <input type="text" id="phone" name="phone" value="{{ booking.phone }}">
 
-            <label>{{ tr("last_name") }}
-                <input name="guest_last_name" value="{{ guest.guest_last_name }}">
-            </label>
+            <label for="room">{{ tr("room") }}</label>
+            <select id="room" name="room" {% if existing %}disabled{% endif %}>
+                {% for room in rooms %}
+                    <option value="{{ room }}" {% if booking.room == room %}selected{% endif %}>{{ room }}</option>
+                {% endfor %}
+            </select>
 
-            <label>{{ tr("first_name") }}
-                <input name="guest_first_name" value="{{ guest.guest_first_name }}">
-            </label>
+            <label for="checkin">{{ tr("checkin") }}</label>
+            <input type="date" id="checkin" name="checkin" value="{{ booking.checkin }}">
 
-            <label>{{ tr("email") }}
-                <input name="guest_email" value="{{ guest.guest_email }}">
-            </label>
+            <label for="checkout">{{ tr("checkout") }}</label>
+            <input type="date" id="checkout" name="checkout" value="{{ booking.checkout }}">
 
-            <label>{{ tr("phone") }}
-                <input name="guest_phone" value="{{ guest.guest_phone }}">
-            </label>
+            <label for="guests">{{ tr("guest_count") }}</label>
+            <input type="number" id="guests" name="guests" value="{{ booking.guests }}">
 
-            <label>{{ tr("room_h") }}
-                <select name="guest_house_id">
-                    {% for rid in guest_house_ids %}
-                    <option value="{{ rid }}" {{ 'selected' if guest.guest_house_id == rid or guest.guest_house_id|string == rid else '' }}>{{ rid }}</option>
-                    {% endfor %}
-                </select>
-            </label>
+            <label for="notes">{{ tr("notes") }}</label>
+            <textarea id="notes" name="notes">{{ booking.notes }}</textarea>
 
-            <label>{{ tr("arrival") }}
-                <input type="date" name="checkin_time" value="{{ guest.checkin_time }}">
-            </label>
+            <label for="created_by">{{ tr("created_by") }}</label>
+            <select id="created_by" name="created_by" {% if existing %}disabled{% endif %}>
+                {% for creator in creators %}
+                    <option value="{{ creator }}" {% if booking.created_by == creator %}selected{% endif %}>{{ creator }}</option>
+                {% endfor %}
+            </select>
 
-            <label>{{ tr("departure") }}
-                <input type="date" name="checkout_time" value="{{ guest.checkout_time }}">
-            </label>
-
-            <label>{{ tr("guest_count") }}
-                <input type="number" name="guest_count" value="{{ guest.guest_count }}">
-            </label>
-
-            <label>{{ tr("notes") }}
-                <input name="notes" value="{{ guest.notes }}">
-            </label>
-
-            <label>{{ tr("created_by") }}
-                <select name="created_by">
-                    {% for user in created_by_options %}
-                    <option value="{{ user }}" {{ 'selected' if guest.created_by == user else '' }}>{{ user }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-
-            <label>{{ tr("guest_language") }}
-                <select name="guest_lang">
-                    <option value="hu" {{ 'selected' if guest.lang == 'hu' else '' }}>magyar</option>
-                    <option value="ro" {{ 'selected' if guest.lang == 'ro' else '' }}>română</option>
-                    <option value="en" {{ 'selected' if guest.lang == 'en' or not guest.lang else '' }}>english</option>
-                </select>
-            </label>
+            <label for="lang">{{ tr("language") }}</label>
+            <select id="lang" name="lang">
+                {% for lang_code, lang_name in langs.items() %}
+                    <option value="{{ lang_code }}" {% if booking.lang == lang_code %}selected{% endif %}>{{ lang_name }}</option>
+                {% endfor %}
+            </select>
 
             <div class="button-group">
                 <button type="submit" class="submit-button">{{ tr(button) }}</button>
+
                 {% if existing %}
                     <a href="/confirm_delete?booking_id={{ original_id }}" class="delete-button">{{ tr("delete") }}</a>
+                    <button type="button" class="back-button" onclick="window.history.back()">{{ tr("back") }}</button>
                 {% endif %}
             </div>
         </form>
