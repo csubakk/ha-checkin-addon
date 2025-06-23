@@ -39,48 +39,50 @@
         input[type="date"] {
             font-size: 1em;
         }
-        .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-top: 1.5em;
-            gap: 1em;
-        }
-        .submit-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1em;
-            padding: 0.6em 1.4em;
-            flex: 1;
-            min-width: 40%;
-        }
-        .delete-button {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1em;
-            padding: 0.6em 1.4em;
-            text-align: center;
-            text-decoration: none;
-            flex: 1;
-            min-width: 40%;
-        }
+         .button-group {
+        display: flex;
+        gap: 1em;
+        margin-top: 2em;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .submit-button,
+    .delete-button,
+    .back-button {
+        padding: 0.6em 1.4em;
+        font-size: 1em;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        text-align: center;
+        flex: 1;
+        min-width: 30%;
+        max-width: 33%;
+        white-space: nowrap;
+    }
+    .submit-button {
+        background-color: #007BFF;
+        color: white;
+    }
+    .delete-button {
+        background-color: #dc3545;
+        color: white;
+        text-decoration: none;
+    }
+    .back-button {
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+        .submit-button,
+        .delete-button,
         .back-button {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1em;
-            padding: 0.6em 1.4em;
-            flex: 1;
-            min-width: 40%;
+            flex: 100%;
+            max-width: 100%;
         }
+    }
     </style>
 </head>
 <body>
@@ -102,7 +104,7 @@
     <label for="guest_phone">{{ tr("phone") }}</label>
     <input type="text" id="guest_phone" name="guest_phone" value="{{ guest.guest_phone }}">
 
-    <label for="guest_house_id">{{ tr("room") }}</label>
+    <label for="guest_house_id">{{ tr("room_h") }}</label>
     <select id="guest_house_id" name="guest_house_id" {% if existing %}disabled{% endif %}>
         {% for room in guest_house_ids %}
             <option value="{{ room }}" {% if guest.guest_house_id == room or guest.guest_house_id|string == room %}selected{% endif %}>{{ room }}</option>
