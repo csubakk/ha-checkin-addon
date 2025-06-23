@@ -47,9 +47,10 @@ def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     conn.close()
     return dict(row) if row else None
 
-
 @router.get("/edit_booking", response_class=HTMLResponse)
-async def edit_booking(request: Request, date: str, house_id: str, error: str = ""):
+async def edit_booking(request: Request, date: str, house_id: str, token: str = "", error: str = ""):
+    if token != os.getenv("OWNER_TOKEN"):
+        raise HTTPException(status_code=401, detail="Unauthorized")
     booking = get_booking_by_date_and_house(date, house_id)
     checkin_dt = datetime.fromisoformat(date)
     default_checkout = (checkin_dt + timedelta(days=1)).date().isoformat()
@@ -87,11 +88,14 @@ async def edit_booking(request: Request, date: str, house_id: str, error: str = 
         "original_id": data["id"],
         "existing": bool(data["id"]),
         "error": error,
+        "token": token,
         "tr": tr
     })
 
 @router.get("/confirm_delete", response_class=HTMLResponse)
-async def confirm_delete(request: Request, booking_id: int):
+async def confirm_delete(request: Request, booking_id: int, token: str = ""):
+    if token != os.getenv("OWNER_TOKEN"):
+        raise HTTPException(status_code=401, detail="Unauthorized")
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -109,18 +113,21 @@ async def confirm_delete(request: Request, booking_id: int):
         "checkin": booking["checkin_time"],
         "checkout": booking["checkout_time"],
         "lang": lang,
+        "token": token,
         "tr": tr
     })
 
 
 @router.post("/delete_booking")
-async def delete_booking(booking_id: int = Form(...)):
+async def delete_booking(booking_id: int = Form(...), token: str = Form(...)):
+    if token != os.getenv("OWNER_TOKEN"):
+        raise HTTPException(status_code=401, detail="Unauthorized")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM guest_bookings WHERE id = ?", (booking_id,))
     conn.commit()
     conn.close()
-    return RedirectResponse(url="/calendar", status_code=303)
+    return RedirectResponse(url=f"/calendar?token={token}", status_code=303)
 
 @router.post("/save_booking")
 async def save_booking(
@@ -137,7 +144,8 @@ async def save_booking(
     created_by: str = Form(""),
     original_id: str = Form(""),
     lang: str = Form("hu"),
-    guest_lang: str = Form("en")
+    guest_lang: str = Form("en"),
+    token: str = Form("")
 ):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -186,6 +194,7 @@ async def save_booking(
             "lang": lang,
             "existing": bool(original_id),
             "error": error_msg,
+            "token": token,
             "tr": tr
         })
 
@@ -207,6 +216,7 @@ async def save_booking(
             "original_id": original_id,
             "existing": bool(original_id),
             "error": tr("date_format_error", ", ".join(formatted_days), lang=lang),
+            "token": token,
             "tr": tr
         })
 
@@ -223,6 +233,7 @@ async def save_booking(
             "lang": lang,
             "existing": bool(original_id),
             "error": tr("invalid_dates", ", ".join(formatted_days), lang=lang),
+            "token": token,
             "tr": tr
         })
 
@@ -277,6 +288,7 @@ async def save_booking(
             "lang": lang,
             "existing": bool(original_id),
             "error": tr("conflict", ", ".join(formatted_days), lang=lang),
+            "token": token,
             "tr": tr
         })
 
@@ -342,4 +354,4 @@ async def save_booking(
             with open("/config/debug.log", "a") as f:
                 f.write(f"[HIBA] Emailküldés hiba: {str(e)}\n")
 
-    return RedirectResponse(url=f"/calendar", status_code=303)
+    return RedirectResponse(url=f"/calendar?token={token}", status_code=303)
