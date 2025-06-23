@@ -8,6 +8,7 @@ import uuid
 import re
 import os
 import requests
+import httpx
 from services import notifications
 from translations.translations import get_translations, tr
 
@@ -23,6 +24,14 @@ templates = Jinja2Templates(directory="/app/templates")
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 PHONE_REGEX = re.compile(r"^(?:\+|00|07)\d{7,13}$")
 
+async def get_owner_token():
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        response = await client.get(
+            f"{HA_URL}/states/input_text.owner_token",
+            headers={"Authorization": f"Bearer {HA_TOKEN}"}
+        )
+        response.raise_for_status()
+        return response.json()["state"]
 
 def get_input_select_options(entity_id: str):
     url = f"{HA_URL}/states/{entity_id}"
@@ -49,8 +58,9 @@ def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
 
 @router.get("/edit_booking", response_class=HTMLResponse)
 async def edit_booking(request: Request, date: str, house_id: str, token: str = "", error: str = ""):
-    if token != os.getenv("OWNER_TOKEN"):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    owner_token = await get_owner_token()
+    if token != owner_token:
+        raise HTTPException(status_code=403, detail="Invalid token")
     booking = get_booking_by_date_and_house(date, house_id)
     checkin_dt = datetime.fromisoformat(date)
     default_checkout = (checkin_dt + timedelta(days=1)).date().isoformat()
@@ -94,8 +104,9 @@ async def edit_booking(request: Request, date: str, house_id: str, token: str = 
 
 @router.get("/confirm_delete", response_class=HTMLResponse)
 async def confirm_delete(request: Request, booking_id: int, token: str = ""):
-    if token != os.getenv("OWNER_TOKEN"):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    owner_token = await get_owner_token()
+    if token != owner_token:
+        raise HTTPException(status_code=403, detail="Invalid token")
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -120,8 +131,9 @@ async def confirm_delete(request: Request, booking_id: int, token: str = ""):
 
 @router.post("/delete_booking")
 async def delete_booking(booking_id: int = Form(...), token: str = Form(...)):
-    if token != os.getenv("OWNER_TOKEN"):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    owner_token = await get_owner_token()
+    if token != owner_token:
+        raise HTTPException(status_code=403, detail="Invalid token")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM guest_bookings WHERE id = ?", (booking_id,))
