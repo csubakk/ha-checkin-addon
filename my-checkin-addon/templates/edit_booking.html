@@ -40,7 +40,7 @@
         <label>{{ tr("email") }} <input name="guest_email" value="{{ guest.guest_email }}"></label>
         <label>{{ tr("phone") }} <input name="guest_phone" value="{{ guest.guest_phone }}"></label>
 
-        <label>{{ tr("room") }}
+        <label>{{ tr("room_h") }}
             <select name="guest_house_id">
                 {% for rid in guest_house_ids %}
                 <option value="{{ rid }}" {{ 'selected' if guest.guest_house_id == rid or guest.guest_house_id|string == rid else '' }}>{{ rid }}</option>
