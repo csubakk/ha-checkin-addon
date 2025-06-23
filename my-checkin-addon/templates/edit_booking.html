@@ -107,12 +107,13 @@
     <label for="guest_phone">{{ tr("phone") }}</label>
     <input type="text" id="guest_phone" name="guest_phone" value="{{ guest.guest_phone }}">
 
-    <label for="guest_house_id">{{ tr("room_h") }}</label>
-    <select id="guest_house_id" name="guest_house_id" {% if existing %}disabled{% endif %}>
-        {% for room in guest_house_ids %}
-            <option value="{{ room }}" {% if guest.guest_house_id == room or guest.guest_house_id|string == room %}selected{% endif %}>{{ room }}</option>
-        {% endfor %}
-    </select>
+        <label>{{ tr("room_h") }}
+            <select name="guest_house_id">
+                {% for rid in guest_house_ids %}
+                <option value="{{ rid }}" {{ 'selected' if guest.guest_house_id == rid or guest.guest_house_id|string == rid else '' }}>{{ rid }}</option>
+                {% endfor %}
+            </select>
+        </label>
 
     <label for="checkin_time">{{ tr("checkin") }}</label>
     <input type="date" id="checkin_time" name="checkin_time" value="{{ guest.checkin_time }}">
@@ -126,12 +127,13 @@
     <label for="notes">{{ tr("notes") }}</label>
     <textarea id="notes" name="notes">{{ guest.notes }}</textarea>
 
-    <label for="created_by">{{ tr("created_by") }}</label>
-    <select id="created_by" name="created_by" {% if existing %}disabled{% endif %}>
-        {% for creator in created_by_options %}
-            <option value="{{ creator }}" {% if guest.created_by == creator %}selected{% endif %}>{{ creator }}</option>
-        {% endfor %}
-    </select>
+        <label>{{ tr("created_by") }}
+            <select name="created_by">
+                {% for user in created_by_options %}
+                <option value="{{ user }}" {{ 'selected' if guest.created_by == user else '' }}>{{ user }}</option>
+                {% endfor %}
+            </select>
+        </label>
 
     <label for="lang">{{ tr("guest_language") }}</label>
     <select id="lang" name="guest_lang">
