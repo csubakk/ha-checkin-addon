@@ -6,6 +6,7 @@ import yaml
 import requests
 from fastapi import FastAPI, HTTPException, Form, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 import uvicorn
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import A4
@@ -300,7 +301,12 @@ async def submit_guest_data(
 
     
     return {"status": "ok", "message": "Adatok frissítve, email elküldve."}
-    
+
+@app.get("/export.ics")
+async def export_calendar():
+    with open("/config/www/export.ics", "r") as f:
+        content = f.read()
+    return Response(content=content, media_type="text/calendar; charset=utf-8")
     
 @app.post("/local/door/{token}/toggle")
 async def toggle_door(token: str):
