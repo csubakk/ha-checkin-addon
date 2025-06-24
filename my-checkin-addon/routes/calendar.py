@@ -75,7 +75,7 @@ async def calendar_page(request: Request, start: str = "", lang: str = None, tok
         lname = row["guest_last_name"] or ""
         name = f"{lname} {fname}".strip()
         source_prefix = get_source_prefix(row["source"])
-        warning = "❗" if not row["access_token"] else ""
+        warning = "⚠️" if not row["access_token"] else ""
         full_name = f"{warning}{source_prefix} {name}".strip()
         guest_house = str(row["guest_house_id"])
         try:
