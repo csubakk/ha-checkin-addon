@@ -343,57 +343,53 @@ async def save_booking(
     is_update = original_id and is_real_existing_booking(original_id)
     access_token = None if is_update else str(uuid.uuid4())
 
-if is_update:
-    cursor.execute("""
-        UPDATE guest_bookings SET
-            guest_first_name = ?, guest_last_name = ?, guest_email = ?, guest_phone = ?,
-            guest_count = ?, notes = ?, guest_house_id = ?, checkin_time = ?, checkout_time = ?,
-            created_by = ?, lang = ?, updated_at = datetime('now')
-        WHERE id = ?
-    """, (
-        guest_first_name, guest_last_name, guest_email, guest_phone,
-        guest_count, notes, guest_house_id, checkin_time, checkout_time,
-        created_by, guest_lang, original_id
-    ))
-    booking_id = original_id
+    if is_update:
+        cursor.execute("""
+            UPDATE guest_bookings SET
+                guest_first_name = ?, guest_last_name = ?, guest_email = ?, guest_phone = ?,
+                guest_count = ?, notes = ?, guest_house_id = ?, checkin_time = ?, checkout_time = ?,
+                created_by = ?, lang = ?, updated_at = datetime('now')
+            WHERE id = ?
+        """, (
+            guest_first_name, guest_last_name, guest_email, guest_phone,
+            guest_count, notes, guest_house_id, checkin_time, checkout_time,
+            created_by, guest_lang, original_id
+        ))
+        booking_id = original_id
 
-    # 🧠 Token hiányának ellenőrzése
-    cursor.execute("SELECT access_token FROM guest_bookings WHERE id = ?", (booking_id,))
-    token_row = cursor.fetchone()
-    if not token_row or not token_row[0]:
+        # 🧠 Token hiányának ellenőrzése
+        cursor.execute("SELECT access_token FROM guest_bookings WHERE id = ?", (booking_id,))
+        token_row = cursor.fetchone()
+        if not token_row or not token_row[0]:
+            access_token = str(uuid.uuid4())
+            cursor.execute("UPDATE guest_bookings SET access_token = ? WHERE id = ?", (access_token, booking_id))
+            try:
+                notifications.send_guest_email(booking_id)
+                notifications.send_checkin_link(booking_id)
+            except Exception as e:
+                with open("/config/debug.log", "a") as f:
+                    f.write(f"[HIBA] Token/email küldés (update) hiba: {str(e)}\n")
+
+    else:
         access_token = str(uuid.uuid4())
-        cursor.execute("UPDATE guest_bookings SET access_token = ? WHERE id = ?", (access_token, booking_id))
-        try:
-            notifications.send_guest_email(booking_id)
-            notifications.send_checkin_link(booking_id)
-        except Exception as e:
-            with open("/config/debug.log", "a") as f:
-                f.write(f"[HIBA] Token/email küldés (update) hiba: {str(e)}\n")
+        cursor.execute("""
+            INSERT INTO guest_bookings (
+                guest_first_name, guest_last_name, birth_date, birth_place, nationality,
+                document_type, document_number, cnp, address, travel_purpose, signature,
+                checkin_time, checkout_time, guest_count, notes, checkin_email_sent_at,
+                checkout_completed, created_at, updated_at, guest_email, guest_phone,
+                guest_house_id, access_token, created_by, access_email_sent_at, lang
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            guest_first_name, guest_last_name, None, None, None,
+            None, None, None, None, None, None, 
+            checkin_time, checkout_time, guest_count, notes, None,
+            0, now, now, guest_email, guest_phone,
+            guest_house_id, access_token, created_by, None,
+            guest_lang
+        ))
+        booking_id = cursor.lastrowid
 
-else:
-    access_token = str(uuid.uuid4())
-    cursor.execute("""
-        INSERT INTO guest_bookings (
-            guest_first_name, guest_last_name, birth_date, birth_place, nationality,
-            document_type, document_number, cnp, address, travel_purpose, signature,
-            checkin_time, checkout_time, guest_count, notes, checkin_email_sent_at,
-            checkout_completed, created_at, updated_at, guest_email, guest_phone,
-            guest_house_id, access_token, created_by, access_email_sent_at, lang
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        guest_first_name, guest_last_name, None, None, None,
-        None, None, None, None, None, None, 
-        checkin_time, checkout_time, guest_count, notes, None,
-        0, now, now, guest_email, guest_phone,
-        guest_house_id, access_token, created_by, None,
-        guest_lang
-    ))
-    booking_id = cursor.lastrowid
-
-    conn.commit()
-    conn.close()
-
-    if not is_update:
         try:
             notifications.send_guest_email(booking_id)
             notifications.send_checkin_link(booking_id)
@@ -401,4 +397,6 @@ else:
             with open("/config/debug.log", "a") as f:
                 f.write(f"[HIBA] Emailküldés hiba: {str(e)}\n")
 
+    conn.commit()
+    conn.close()
     return RedirectResponse(url=f"/calendar?token={token}", status_code=303)
