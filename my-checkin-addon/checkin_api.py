@@ -304,6 +304,8 @@ async def submit_guest_data(
 
 @app.get("/export.ics")
 async def export_calendar():
+    user_agent = request.headers.get("user-agent")
+    print("📡 User-Agent:", user_agent)
     with open("/config/www/export.ics", "r") as f:
         content = f.read()
     return Response(content=content, media_type="text/calendar; charset=utf-8")
