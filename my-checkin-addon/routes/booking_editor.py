@@ -32,6 +32,17 @@ def get_input_select_options(entity_id: str):
         return response.json().get("attributes", {}).get("options", [])
     return []
 
+def is_real_existing_booking(booking_id: str) -> bool:
+    try:
+        bid = int(booking_id)
+    except:
+        return False
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM guest_bookings WHERE id = ?", (bid,))
+    exists = cursor.fetchone()[0] > 0
+    conn.close()
+    return exists
 
 def get_booking_by_date_and_house(checkin_date: str, guest_house_id: str):
     conn = sqlite3.connect(DB_PATH)
@@ -158,7 +169,7 @@ async def save_booking(
 
     guest_house_ids = get_input_select_options("input_select.guest_house_id")
     created_by_options = get_input_select_options("input_select.created_by")
-
+   
     if not guest_first_name.strip() or not guest_last_name.strip():
         conn.close()
         error_msg = tr("empty_name", lang=lang)
@@ -328,9 +339,11 @@ async def save_booking(
         })
 
     now = datetime.now().isoformat(timespec='seconds')
-    access_token = str(uuid.uuid4()) if not original_id else None
+    
+    is_update = original_id and is_real_existing_booking(original_id)
+    access_token = None if is_update else str(uuid.uuid4())
 
-    if original_id:
+    if is_update:
         cursor.execute("""
             UPDATE guest_bookings SET
                 guest_first_name = ?, guest_last_name = ?, guest_email = ?, guest_phone = ?,
@@ -381,7 +394,7 @@ async def save_booking(
     conn.commit()
     conn.close()
 
-    if not original_id:
+    if not is_update:
         try:
             notifications.send_guest_email(booking_id)
             notifications.send_checkin_link(booking_id)
