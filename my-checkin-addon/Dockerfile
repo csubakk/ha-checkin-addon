@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 🔤 Betűtípus bemásolása
 COPY fonts/DejaVuSans.ttf /app/fonts/DejaVuSans.ttf
+COPY log_config.yaml /app/log_config.yaml
 
 # 📁 Sablonok bemásolása a HA alatt elérhető /config alá
 COPY templates /app/templates
