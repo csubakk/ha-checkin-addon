@@ -303,7 +303,7 @@ async def submit_guest_data(
     return {"status": "ok", "message": "Adatok frissítve, email elküldve."}
 
 @app.get("/export.ics")
-async def export_calendar():
+async def export_calendar(request: Request):
     user_agent = request.headers.get("user-agent")
     print("📡 User-Agent:", user_agent)
     with open("/config/www/export.ics", "r") as f:
