@@ -62,7 +62,7 @@ async def calendar_page(request: Request, start: str = "", lang: str = None, tok
     placeholders = ",".join("?" for _ in room_ids)
     cursor.execute(f"""
         SELECT guest_first_name, guest_last_name, checkin_time, checkout_time, guest_house_id,
-               is_auto_generated, is_completed, source
+               is_auto_generated, is_completed, source, access_token
         FROM guest_bookings
         WHERE guest_house_id IN ({placeholders})
     """, room_ids)
@@ -75,7 +75,8 @@ async def calendar_page(request: Request, start: str = "", lang: str = None, tok
         lname = row["guest_last_name"] or ""
         name = f"{lname} {fname}".strip()
         source_prefix = get_source_prefix(row["source"])
-        full_name = f"{source_prefix} {name}".strip()
+        warning = "❗" if not row["access_token"] else ""
+        full_name = f"{warning}{source_prefix} {name}".strip()
         guest_house = str(row["guest_house_id"])
         try:
             checkin = datetime.fromisoformat(row["checkin_time"]).date()
