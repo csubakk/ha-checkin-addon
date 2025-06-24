@@ -31,6 +31,13 @@ def get_guest_house_ids_from_ha():
         print("❌ Nem sikerült lekérni a szobaazonosítókat:", e)
         return ["1"]
 
+def get_source_prefix(source: str):
+    match source:
+        case "booking": return '🅑'
+        case "airbnb": return '🅐'
+        case "travelminit": return '🅣'
+        case _: return ''  # kézi bevitel
+
 @router.get("/calendar", response_class=HTMLResponse)
 async def calendar_page(request: Request, start: str = "", lang: str = None, token: str = None):
     owner_token = OWNER_TOKEN
@@ -54,7 +61,8 @@ async def calendar_page(request: Request, start: str = "", lang: str = None, tok
     cursor = conn.cursor()
     placeholders = ",".join("?" for _ in room_ids)
     cursor.execute(f"""
-        SELECT guest_first_name, guest_last_name, checkin_time, checkout_time, guest_house_id
+        SELECT guest_first_name, guest_last_name, checkin_time, checkout_time, guest_house_id,
+               is_auto_generated, is_completed, source
         FROM guest_bookings
         WHERE guest_house_id IN ({placeholders})
     """, room_ids)
@@ -66,13 +74,15 @@ async def calendar_page(request: Request, start: str = "", lang: str = None, tok
         fname = row["guest_first_name"] or ""
         lname = row["guest_last_name"] or ""
         name = f"{lname} {fname}".strip()
+        source_prefix = get_source_prefix(row["source"])
+        full_name = f"{source_prefix} {name}".strip()
         guest_house = str(row["guest_house_id"])
         try:
             checkin = datetime.fromisoformat(row["checkin_time"]).date()
             checkout = datetime.fromisoformat(row["checkout_time"]).date()
             for d in range((checkout - checkin).days):
                 day = checkin + timedelta(days=d)
-                date_map[guest_house][day] = name
+                date_map[guest_house][day] = full_name
         except:
             continue
 
@@ -104,6 +114,8 @@ async def calendar_page(request: Request, start: str = "", lang: str = None, tok
 
         row += "</tr>"
         rows.append(row)
+
+    # [A kimenet HTML kódja változatlan maradt]
 
     prev_start = (start_date - timedelta(days=35)).isoformat()
     next_start = (start_date + timedelta(days=35)).isoformat()
