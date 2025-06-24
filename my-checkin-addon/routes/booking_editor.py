@@ -218,7 +218,7 @@ async def save_booking(
             "lang": lang,
             "original_id": original_id,
             "existing": bool(original_id),
-            "error": tr("date_format_error", ", ".join(formatted_days), lang=lang),
+            "error": tr("date_format_error", f"{checkin_time}, {checkout_time}", lang=lang)
             "token": token,
             "tr": tr
         })
