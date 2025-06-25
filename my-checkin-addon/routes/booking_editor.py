@@ -391,13 +391,15 @@ async def save_booking(
         ))
         booking_id = cursor.lastrowid
 
-        try:
-            notifications.send_guest_email(booking_id)
-            notifications.send_checkin_link(booking_id)
-        except Exception as e:
-            with open("/config/debug.log", "a") as f:
-                f.write(f"[HIBA] Emailküldés hiba: {str(e)}\n")
-
     conn.commit()
     conn.close()
+        
+    try:
+        notifications.send_guest_email(booking_id)
+        notifications.send_checkin_link(booking_id)
+    except Exception as e:
+        with open("/config/debug.log", "a") as f:
+            f.write(f"[HIBA] Emailküldés hiba: {str(e)}\n")
+
+
     return RedirectResponse(url=f"/calendar?token={token}", status_code=303)
