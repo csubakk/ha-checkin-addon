@@ -303,13 +303,21 @@ async def submit_guest_data(
     return {"status": "ok", "message": "Adatok frissítve, email elküldve."}
 
 @app.get("/export.ics")
-async def export_calendar(request: Request):
+async def export_calendar_booking(request: Request):
     user_agent = request.headers.get("user-agent")
-    print("📡 User-Agent:", user_agent)
+    print("📡 User-Agent (export):", user_agent)
     with open("/config/www/export.ics", "r") as f:
         content = f.read()
     return Response(content=content, media_type="text/calendar; charset=utf-8")
-    
+
+@app.get("/airbnb.ics")
+async def export_calendar_airbnb(request: Request):
+    user_agent = request.headers.get("user-agent")
+    print("📡 User-Agent (airbnb):", user_agent)
+    with open("/config/www/airbnb.ics", "r") as f:
+        content = f.read()
+    return Response(content=content, media_type="text/calendar; charset=utf-8")
+
 @app.post("/local/door/{token}/toggle")
 async def toggle_door(token: str):
     conn = sqlite3.connect(DB_PATH)
