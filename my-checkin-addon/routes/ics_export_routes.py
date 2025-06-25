@@ -43,13 +43,14 @@ UID:{uid}
 END:VEVENT
         """)
 
-    return """BEGIN:VCALENDAR
+    calendar_header = f"""BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:""" + PROD_ID + f"""
+PRODID:{PROD_ID}
 CALSCALE:GREGORIAN
 X-WR-CALNAME:{CALENDAR_NAME} - {platform}/{house_id}
 X-WR-TIMEZONE:UTC
-""" + """".join(events) + "\nEND:VCALENDAR\n"
+"""
+    return calendar_header + "\n".join(events) + "\nEND:VCALENDAR\n"
 
 @router.get("/ics/{platform}_{house_id}.ics")
 async def export_ics_file(platform: str, house_id: str):
