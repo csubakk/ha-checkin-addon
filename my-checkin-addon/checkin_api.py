@@ -368,5 +368,9 @@ async def toggle_door(token: str):
 
     return {"status": "ok", "message": "Ajtó művelet elküldve"}
 
+from services.ics_export import generate_ics_exports
+generate_ics_exports()
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8124)
