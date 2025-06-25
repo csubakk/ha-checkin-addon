@@ -2,6 +2,8 @@ from fastapi import APIRouter, Response, HTTPException
 import sqlite3
 from datetime import datetime
 import os
+from datetime import datetime
+
 
 router = APIRouter()
 
@@ -10,18 +12,21 @@ EXPORT_FOLDER = "/config/www/ics_exports"
 CALENDAR_NAME = "Foglalások"
 PROD_ID = "-//tapexpert.eu//GuestCheckin//HU"
 
+
 os.makedirs(EXPORT_FOLDER, exist_ok=True)
 
 def generate_ics(house_id: str, platform: str):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-
+    today_str = datetime.now().date().isoformat()
+    
     # Szűrés: csak a többi platform foglalásai
     cursor.execute("""
         SELECT checkin_time, checkout_time FROM guest_bookings
-        WHERE guest_house_id = ? AND source IS NOT NULL AND source != ?
-    """, (house_id, platform))
+        WHERE guest_house_id = ? AND source IS NOT NULL AND source != ? AND checkout_time >= ?
+    """, (house_id, platform, today_str))
+    
     rows = cursor.fetchall()
     conn.close()
 
