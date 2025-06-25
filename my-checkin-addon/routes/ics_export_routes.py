@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Response, HTTPException
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 import os
-from datetime import datetime
-
 
 router = APIRouter()
 
@@ -11,7 +9,6 @@ DB_PATH = "/config/guestbook.db"
 EXPORT_FOLDER = "/config/www/ics_exports"
 CALENDAR_NAME = "Foglalások"
 PROD_ID = "-//tapexpert.eu//GuestCheckin//HU"
-
 
 os.makedirs(EXPORT_FOLDER, exist_ok=True)
 
@@ -21,9 +18,8 @@ def generate_ics(house_id: str, platform: str):
     cursor = conn.cursor()
     today_str = datetime.now().date().isoformat()
     
-    # Szűrés: csak a többi platform foglalásai
     cursor.execute("""
-        SELECT checkin_time, checkout_time FROM guest_bookings
+        SELECT checkin_time, checkout_time, ical_uid FROM guest_bookings
         WHERE guest_house_id = ? AND source IS NOT NULL AND source != ? AND checkout_time >= ?
     """, (house_id, platform, today_str))
     
@@ -35,27 +31,28 @@ def generate_ics(house_id: str, platform: str):
         try:
             start = datetime.fromisoformat(row["checkin_time"]).strftime("%Y%m%d")
             end = datetime.fromisoformat(row["checkout_time"]).strftime("%Y%m%d")
+            dtstamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            uid = row["ical_uid"] or f"{platform}_{house_id}_{start}@tapexpert.eu"
         except Exception:
             continue
 
-        uid = f"{platform}_{house_id}_{start}@tapexpert.eu"
-        events.append(f"""
-BEGIN:VEVENT
+        events.append(f"""BEGIN:VEVENT
 DTSTART;VALUE=DATE:{start}
 DTEND;VALUE=DATE:{end}
+DTSTAMP:{dtstamp}
 SUMMARY:Szállás foglalás (tapexpert)
 UID:{uid}
-END:VEVENT
-        """)
+END:VEVENT""")
 
     calendar_header = f"""BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:{PROD_ID}
+METHOD:PUBLISH
 CALSCALE:GREGORIAN
 X-WR-CALNAME:{CALENDAR_NAME} - {platform}/{house_id}
-X-WR-TIMEZONE:UTC
-"""
-    return calendar_header + "\n".join(events) + "\nEND:VCALENDAR\n"
+X-WR-TIMEZONE:UTC"""
+
+    return calendar_header + "\n" + "\n".join(events) + "\nEND:VCALENDAR\n"
 
 @router.get("/ics/{platform}_{house_id}.ics")
 async def export_ics_file(platform: str, house_id: str):
